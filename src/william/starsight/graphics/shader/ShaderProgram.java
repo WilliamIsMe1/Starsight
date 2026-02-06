@@ -1,6 +1,8 @@
 package william.starsight.graphics.shader;
 
 import org.intellij.lang.annotations.Language;
+import org.jetbrains.annotations.Contract;
+import org.joml.Matrix4f;
 import william.starsight.Starsight;
 
 import org.lwjgl.opengl.GL;
@@ -24,7 +26,7 @@ public class ShaderProgram implements AutoCloseable {
 	 * @param vertexSource The vertex shader code
 	 * @param fragmentSource The fragment shader code
 	 */
-	public ShaderProgram(@Language("glsl") String vertexSource, @Language("glsl") String fragmentSource) {
+	public ShaderProgram(@Language("Glsl") String vertexSource, @Language("Glsl") String fragmentSource) {
 		this.vertexSource = vertexSource;
 		this.fragmentSource = fragmentSource;
 		this.id = 0;
@@ -133,5 +135,77 @@ public class ShaderProgram implements AutoCloseable {
 	@Override
 	public void close() {
 		cleanup();
+	}
+
+	/**
+	 * Checks for the existence of a uniform in the shader code
+	 *
+	 * @param uniformName The name of the uniform
+	 * @return Whether the uniform is an active variable in the shader code
+	 */
+	@Contract(pure = true)
+	public boolean doesUniformExist(String uniformName) {
+		return glGetUniformLocation(id, uniformName) != -1; // Not as clear-cut as it may seem, as there are edge cases
+	}
+	
+	/**
+	 * Sets a uniform's value
+	 *
+	 * @param uniformName The name
+	 * @param value The value
+	 */
+	public void setUniform(String uniformName, int value) {
+		if(!doesUniformExist(uniformName)) {
+			Starsight.LOG.warning("Uniform " + uniformName + " does not exist. Skipping...");
+			return;
+		}
+		glUniform1i(getUniformLocation(uniformName), value);
+	}
+	
+	/**
+	 * Sets a uniform's value
+	 *
+	 * @param uniformName The name
+	 * @param value The value
+	 */
+	public void setUniform(String uniformName, float value) {
+		if(!doesUniformExist(uniformName)) {
+			Starsight.LOG.warning("Uniform " + uniformName + " does not exist. Skipping...");
+			return;
+		}
+		glUniform1f(getUniformLocation(uniformName), value);
+	}
+	
+	/**
+	 * Sets a uniform's value
+	 *
+	 * @param uniformName The name
+	 * @param value The value
+	 */
+	public void setUniform(String uniformName, double value) {
+		if(!doesUniformExist(uniformName)) {
+			Starsight.LOG.warning("Uniform " + uniformName + " does not exist. Skipping...");
+			return;
+		}
+		glUniform1d(getUniformLocation(uniformName), value);
+	}
+	
+	/**
+	 * Sets a uniform's value
+	 *
+	 * @param uniformName The name
+	 * @param value The value
+	 */
+	public void setUniform(String uniformName, Matrix4f value) {
+		if (!doesUniformExist(uniformName)) {
+			Starsight.LOG.warning("Uniform " + uniformName + " does not exist. Skipping...");
+			return;
+		}
+		glUniformMatrix4fv(getUniformLocation(uniformName), false, value.get(new float[4*4]));
+	}
+	
+	@Contract(pure = true) // Doesn't mutate state I think
+	private int getUniformLocation(String uniformName) {
+		return glGetUniformLocation(id, uniformName);
 	}
 }
