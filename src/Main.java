@@ -1,3 +1,5 @@
+import org.joml.Matrix4f;
+import org.joml.Vector3f;
 import william.starsight.Starsight;
 import william.starsight.core.Program;
 import william.starsight.core.Window;
@@ -9,6 +11,7 @@ import william.starsight.graphics.mesh.VertexFormatType;
 import william.starsight.graphics.shader.ShaderCompilationException;
 import william.starsight.graphics.shader.ShaderLinkingException;
 import william.starsight.graphics.shader.ShaderProgram;
+import william.starsight.util.Camera;
 import william.starsight.util.KeyboardKey;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -17,6 +20,8 @@ import static org.lwjgl.glfw.GLFW.*;
 public class Main implements Program {
 	Mesh mesh = null;
 	ShaderProgram shader = null;
+	Camera camera = new Camera(new Vector3f(0, 0, 0), 0.0f, 0.0f);
+	float aspect = 0.0f;
 	
 	public static void main(String[] args) {
 		Window w = new Window(new Main());
@@ -34,43 +39,45 @@ public class Main implements Program {
 	 */
 	@Override
 	public void initialize(int initWidth, int initHeight, double startTime) {
+		aspect = (float) initWidth / initHeight;
 		float[] vertices = {
 			//  x,     y,    z,    r,    g,    b
-			-0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,
-			 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-			 0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f
+			-0.5f, -0.5f, -5.0f, 1.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, -5.0f, 0.0f, 1.0f, 0.0f,
+			 0.0f,  0.5f, -5.0f, 0.0f, 0.0f, 1.0f
 		};
 		VertexFormat vtx = VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC3); // Position, color
 		mesh = new SimpleMesh(vertices, vtx);
 		mesh.initialize();
 		GraphicsUtils.checkGLError("After mesh initialization");
-		String vertexShaderSource = """
-			#version 430
-			
-			layout(location = 0) in vec3 pos;
-			layout(location = 1) in vec3 color;
-			
-			out vec3 aColor;
-			
-			void main() {
-				gl_Position = vec4(pos, 1.0);
-				aColor = color;
-			}
-			""";
 		
-		String fragmentShaderSource = """
+		shader = new ShaderProgram("""
 			#version 430
-			
-			in vec3 aColor;
-			
-			out vec4 FragColor;
-			
-			void main() {
-				FragColor = vec4(aColor, 1.0);
-			}
-			""";
-		
-		shader = new ShaderProgram(vertexShaderSource, fragmentShaderSource);
+            
+            layout(location = 0) in vec3 pos;
+            layout(location = 1) in vec3 color;
+            
+            out vec3 outColor;
+            
+            uniform mat4 p;
+            uniform mat4 v;
+            uniform mat4 m;
+            
+            void main() {
+                gl_Position = p * v * m * vec4(pos, 1.0);
+                outColor = color;
+            }
+			""", """
+				#version 430
+				
+				in vec3 outColor;
+				
+				out vec4 FragColor;
+				
+				void main() {
+					FragColor = vec4(outColor, 1.0);
+				}
+				""");
 		
 		try {
 			shader.compileAndLink();
@@ -89,7 +96,8 @@ public class Main implements Program {
 	 */
 	@Override
 	public void tick() {
-	
+		System.out.printf("Pitch: %f, yaw: %f\n", camera.getPitchDeg(), camera.getYawDeg());
+		System.out.printf("Position: %f, %f, %f\n", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
 	}
 	
 	/**
@@ -98,10 +106,12 @@ public class Main implements Program {
 	@Override
 	public void render() {
 		shader.bind();
+		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f, aspect));
+		shader.setUniform("v", camera.getCameraMatrix());
+		shader.setUniform("m", new Matrix4f().identity());
 		mesh.draw();
 		GraphicsUtils.checkGLError("After mesh drawing");
 		shader.unbind();
-		
 	}
 	
 	/**
@@ -133,7 +143,7 @@ public class Main implements Program {
 	 */
 	@Override
 	public void resized(int newWidth, int newHeight) {
-	
+		aspect = (float) newWidth / newHeight;
 	}
 	
 	/**
@@ -148,6 +158,21 @@ public class Main implements Program {
 		KeyboardKey keyEnum = KeyboardKey.fromKeyCode(key);
 		if (keyEnum == KeyboardKey.KEY_ESCAPE && action == GLFW_RELEASE) {
 			shouldClose = true;
+		}
+		if (keyEnum == KeyboardKey.KEY_UP && action != GLFW_RELEASE) {
+			camera.setPitchDeg(camera.getPitchDeg() - 1);
+		}
+		if (keyEnum == KeyboardKey.KEY_DOWN && action != GLFW_RELEASE) {
+			camera.setPitchDeg(camera.getPitchDeg() + 1);
+		}
+		if (keyEnum == KeyboardKey.KEY_LEFT && action != GLFW_RELEASE) {
+			camera.setYawDeg(camera.getYawDeg() + 1);
+		}
+		if (keyEnum == KeyboardKey.KEY_RIGHT && action != GLFW_RELEASE) {
+			camera.setYawDeg(camera.getYawDeg() - 1);
+		}
+		if (keyEnum == KeyboardKey.KEY_W && action != GLFW_RELEASE) {
+			camera.getPosition().add(camera.getForwardVector().normalize(0.1f));
 		}
 	}
 }
