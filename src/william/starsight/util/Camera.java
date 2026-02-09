@@ -115,6 +115,6 @@ public class Camera {
 	public static Matrix4f getPerspectiveMatrix(float fov, float aspect) {
 		fov = MathUtils.clamp(fov, MINIMUM_FOV, MAXIMUM_FOV); // Yes, I know reassigning parameter variables is bad practice, but we only use this value as clamped.
 		
-		return new Matrix4f().identity().perspective(fov, aspect, 1.0f, FAR_CLIP_PLANE);
+		return new Matrix4f().identity().perspective(fov, aspect, 0.1f, FAR_CLIP_PLANE);
 	}
 }

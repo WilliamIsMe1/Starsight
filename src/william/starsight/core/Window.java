@@ -141,7 +141,7 @@ public class Window implements Runnable {
 		glfwSwapInterval(0);
 		
 		glEnable(GL_DEPTH_TEST);
-		glEnable(GL_CULL_FACE);
+		glDisable(GL_CULL_FACE);
 		
 		
 		program.initialize(width, height, glfwGetTime());
@@ -164,6 +164,7 @@ public class Window implements Runnable {
 		program.takeKeyEvent(key, action, mods);
 	}
 	
+	/// Simply loops and calls the program tick and render functions
 	private void loop() {
 		while (!glfwWindowShouldClose(windowHandle) && !program.shouldClose()) {
 			glClearColor(r, g, b, a);

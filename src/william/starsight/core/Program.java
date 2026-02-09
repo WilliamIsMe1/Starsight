@@ -35,6 +35,19 @@ public interface Program extends AutoCloseable {
 	
 	/**
 	 * I override it so that I can simply call cleanup at the end of a try block
+	 * <br>
+	 * <pre>
+	 * try (Program p = new SimpleProgram()) {
+	 *     p.initialize(800, 600, glfwGetTime());
+	 *     while (!p.shouldClose()) {
+	 *         p.tick();
+	 *         p.render();
+	 *     }
+	 * }</pre>
+	 *
+	 * @apiNote Ideally this should not be overridden, as all relevant functionality should be located in the
+	 * {@link #cleanup()} method, in the likely case that this method isn't called at all, such as most places
+	 * outside a try-with-resources block.
 	 */
 	@Override
 	default void close() {
