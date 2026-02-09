@@ -8,4 +8,7 @@ package william.starsight.graphics.texture;
  * @implNote DO NOT USE ANYTHING EXCEPT FOR DIRECT BUFFERS
  */
 public abstract class Texture {
+	private int textureId;
+	
+	
 }

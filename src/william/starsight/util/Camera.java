@@ -47,14 +47,17 @@ public class Camera {
 	public void setPitchDeg(float newPitch) {
 		//noinspection MagicNumber // as we don't need to use this in many areas
 		this.pitchDeg = MathUtils.clamp(newPitch, -89.9f, 89.9f);
+		recalculateForward();
 	}
 	
 	public void setYawDeg(float newYaw) {
 		this.yawDeg = newYaw;
+		recalculateForward();
 	}
 	
 	public void setPosition(Vector3f position) {
 		this.position = position;
+		recalculateForward();
 	}
 	
 	public float getPitchDeg() {
@@ -70,7 +73,6 @@ public class Camera {
 	}
 	
 	public Vector3f getForwardVector() {
-		recalculateForward();
 		return new Vector3f(forward);
 	}
 	
@@ -78,11 +80,14 @@ public class Camera {
 	 * Recalculates the forward vector using the angles
 	 */
 	public void recalculateForward() {
+		float yawRad = (float) Math.toRadians(yawDeg);
+		float pitchRad = (float) Math.toRadians(pitchDeg);
+		
 		forward = new Vector3f(
-			(float) Math.cos(Math.toRadians(yawDeg)),
-			(float) Math.cos(Math.toRadians(pitchDeg)),
-			(float) Math.sin(Math.toRadians(yawDeg))
-		);
+			(float) (Math.cos(pitchRad) * Math.cos(yawRad)),
+			(float) Math.sin(pitchRad),
+			(float) (Math.cos(pitchRad) * Math.sin(yawRad))
+		).normalize();
 	}
 	
 	/**
@@ -91,8 +96,6 @@ public class Camera {
 	 * @return The view (camera) matrix
 	 */
 	public Matrix4f getCameraMatrix() {
-		recalculateForward();
-		
 		Vector3f target = new Vector3f(position).add(forward);
 		
 		return new Matrix4f().identity().lookAt(

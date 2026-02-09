@@ -60,11 +60,10 @@ public class Main implements Program {
             out vec3 outColor;
             
             uniform mat4 p;
-            uniform mat4 v;
-            uniform mat4 m;
+			uniform mat4 v;
             
             void main() {
-                gl_Position = p * v * m * vec4(pos, 1.0);
+                gl_Position = p * v * vec4(pos, 1.0);
                 outColor = color;
             }
 			""", """
@@ -96,8 +95,7 @@ public class Main implements Program {
 	 */
 	@Override
 	public void tick() {
-		System.out.printf("Pitch: %f, yaw: %f\n", camera.getPitchDeg(), camera.getYawDeg());
-		System.out.printf("Position: %f, %f, %f\n", camera.getPosition().x, camera.getPosition().y, camera.getPosition().z);
+	
 	}
 	
 	/**
@@ -108,7 +106,7 @@ public class Main implements Program {
 		shader.bind();
 		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f, aspect));
 		shader.setUniform("v", camera.getCameraMatrix());
-		shader.setUniform("m", new Matrix4f().identity());
+//		shader.setUniform("m", new Matrix4f().identity());
 		mesh.draw();
 		GraphicsUtils.checkGLError("After mesh drawing");
 		shader.unbind();
@@ -160,16 +158,16 @@ public class Main implements Program {
 			shouldClose = true;
 		}
 		if (keyEnum == KeyboardKey.KEY_UP && action != GLFW_RELEASE) {
-			camera.setPitchDeg(camera.getPitchDeg() - 1);
-		}
-		if (keyEnum == KeyboardKey.KEY_DOWN && action != GLFW_RELEASE) {
 			camera.setPitchDeg(camera.getPitchDeg() + 1);
 		}
+		if (keyEnum == KeyboardKey.KEY_DOWN && action != GLFW_RELEASE) {
+			camera.setPitchDeg(camera.getPitchDeg() - 1);
+		}
 		if (keyEnum == KeyboardKey.KEY_LEFT && action != GLFW_RELEASE) {
-			camera.setYawDeg(camera.getYawDeg() + 1);
+			camera.setYawDeg(camera.getYawDeg() - 1);
 		}
 		if (keyEnum == KeyboardKey.KEY_RIGHT && action != GLFW_RELEASE) {
-			camera.setYawDeg(camera.getYawDeg() - 1);
+			camera.setYawDeg(camera.getYawDeg() + 1);
 		}
 		if (keyEnum == KeyboardKey.KEY_W && action != GLFW_RELEASE) {
 			camera.getPosition().add(camera.getForwardVector().normalize(0.1f));
