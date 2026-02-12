@@ -15,6 +15,11 @@ public final class Starsight {
 	 */
 	public static final int MAX_OPENGL_ERROR_LENGTH = 1024;
 
+	/**
+	 * Whether Starsight is in debug mode
+	 */
+	public static final boolean DEBUG = false;
+
 	@Contract(" -> fail")
 	private Starsight() {
 	    throw new AssertionError("This class must not be instantiated.");

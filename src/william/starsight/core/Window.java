@@ -170,8 +170,8 @@ public class Window implements Runnable {
 			glClearColor(r, g, b, a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			program.tick();
-			program.render();
+			program.tick(glfwGetTime());
+			program.render(glfwGetTime());
 			
 			glfwSwapBuffers(windowHandle);
 			glfwPollEvents();

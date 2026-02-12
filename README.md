@@ -10,3 +10,5 @@ A rendering engine for low-poly or voxel graphics.
 The capabilities of this engine are rather simple: You can create a mesh, create a shader, send uniforms to the GPU, and render it, all while receiving inputs.
 
 The Window class can be set up in a separate thread. Note that this engine is far from Thread-safe, and should not be used in concurrent environments unless the Window is strictly quarantined from non-rendering functions.
+
+

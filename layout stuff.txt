@@ -1,0 +1,40 @@
+def border_layout(container):
+    cx, cy, cw, ch = container.content_bounds
+    north_h, south_h, west_w, east_w = 0, 0, 0, 0
+    
+    # North: full width, fixed/auto height
+    if north_child := container.get_child('North'):
+        compute_size(north_child, width=cw)
+        north_child.computed.x, y = cx, cy
+        north_h = north_child.computed.height
+        cy += north_h
+        ch -= north_h
+    
+    # South: similar, at bottom
+    if south_child := container.get_child('South'):
+        compute_size(south_child, width=cw)
+        south_h = south_child.computed.height
+        south_child.computed.x, y = cx, cy + ch - south_h
+        ch -= south_h
+    
+    # West: left, remaining height
+    if west_child := container.get_child('West'):
+        compute_size(west_child, height=ch)
+        west_child.computed.x, y = cx, cy
+        west_w = west_child.computed.width
+        cx += west_w
+        cw -= west_w
+    `
+    # East: right, remaining height
+    if east_child := container.get_child('East'):
+        compute_size(east_child, height=ch)
+        east_w = east_child.computed.width
+        east_child.computed.x, y = cx + cw - east_w, cy
+        cw -= east_w
+    
+    # Center: fills rest
+    if center_child := container.get_child('Center'):
+        compute_size(center_child, width=cw, height=ch)
+        center_child.computed.x, y = cx, cy
+
+Layout stuff :)
