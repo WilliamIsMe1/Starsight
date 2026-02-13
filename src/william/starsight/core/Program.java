@@ -21,12 +21,12 @@ public interface Program extends AutoCloseable {
 	/**
 	 * Ticks with the given delta time
 	 */
-    void tick(double delta);
-
-    /**
+	void tick();
+	
+	/**
 	 * Renders the program
 	 */
-	void render(double delta);
+	void render();
 	
 	/**
 	 * This cleans up the entire program to make it ready for shutdown

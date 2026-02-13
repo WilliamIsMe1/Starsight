@@ -1,9 +1,13 @@
+import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import william.starsight.Starsight;
 import william.starsight.core.Program;
 import william.starsight.core.Window;
 import william.starsight.graphics.GraphicsUtils;
-import william.starsight.graphics.mesh.*;
+import william.starsight.graphics.mesh.Mesh;
+import william.starsight.graphics.mesh.SimpleMesh;
+import william.starsight.graphics.mesh.VertexFormat;
+import william.starsight.graphics.mesh.VertexFormatType;
 import william.starsight.graphics.shader.ShaderCompilationException;
 import william.starsight.graphics.shader.ShaderLinkingException;
 import william.starsight.graphics.shader.ShaderProgram;
@@ -37,18 +41,13 @@ public class Main implements Program {
 	public void initialize(int initWidth, int initHeight, double startTime) {
 		aspect = (float) initWidth / initHeight;
 		float[] vertices = {
-			//  x,     y,    z,
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.5f,  0.5f, 0.0f,
-			-0.5f,  0.5f, 0.0f
+			//  x,     y,    z,    r,    g,    b
+			-0.5f, -0.5f, -5.0f, 1.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, -5.0f, 0.0f, 1.0f, 0.0f,
+			 0.0f,  0.5f, -5.0f, 0.0f, 0.0f, 1.0f
 		};
-		int[] indices = {
-			0, 1, 2,
-			2, 3, 0
-		};
-		VertexFormat vtx = VertexFormat.of(VertexFormatType.VEC3); // Position, color
-		mesh = new EBOMesh(vertices, vtx, indices);
+		VertexFormat vtx = VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC3); // Position, color
+		mesh = new SimpleMesh(vertices, vtx);
 		mesh.initialize();
 		GraphicsUtils.checkGLError("After mesh initialization");
 		
@@ -56,17 +55,26 @@ public class Main implements Program {
 			#version 430
             
             layout(location = 0) in vec3 pos;
+            layout(location = 1) in vec3 color;
+            
+            out vec3 outColor;
+            
+            uniform mat4 p;
+			uniform mat4 v;
             
             void main() {
-                gl_Position = vec4(pos, 1.0);
+                gl_Position = p * v * vec4(pos, 1.0);
+                outColor = color;
             }
 			""", """
 				#version 430
-								
+				
+				in vec3 outColor;
+				
 				out vec4 FragColor;
 				
 				void main() {
-					FragColor = vec4(0.9, 0.8, 0.1, 1.0);
+					FragColor = vec4(outColor, 1.0);
 				}
 				""");
 		
@@ -86,7 +94,7 @@ public class Main implements Program {
 	 * Ticks with the given delta time
 	 */
 	@Override
-	public void tick(double delta) {
+	public void tick() {
 //		Starsight.LOG.info("Camera pitch: " + camera.getPitchDeg() + " yaw: " + camera.getYawDeg());
 	}
 	
@@ -94,10 +102,10 @@ public class Main implements Program {
 	 * Renders the program
 	 */
 	@Override
-	public void render(double delta) {
+	public void render() {
 		shader.bind();
-//		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f, aspect));
-//		shader.setUniform("v", camera.getCameraMatrix());
+		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f, aspect));
+		shader.setUniform("v", camera.getCameraMatrix());
 //		shader.setUniform("m", new Matrix4f().identity());
 		mesh.draw();
 		GraphicsUtils.checkGLError("After mesh drawing");
@@ -149,7 +157,6 @@ public class Main implements Program {
 		if (keyEnum == KeyboardKey.KEY_ESCAPE && action == GLFW_RELEASE) {
 			shouldClose = true;
 		}
-		/*
 		if (keyEnum == KeyboardKey.KEY_UP && action != GLFW_RELEASE) {
 			camera.setPitchDeg(camera.getPitchDeg() + 10);
 		}
@@ -165,6 +172,5 @@ public class Main implements Program {
 		if (keyEnum == KeyboardKey.KEY_W && action != GLFW_RELEASE) {
 			camera.getPosition().add(camera.getForwardVector().normalize(0.1f));
 		}
-		*/
 	}
 }

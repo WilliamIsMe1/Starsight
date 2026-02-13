@@ -1,8 +1,9 @@
 package william.starsight.graphics.mesh;
 
 import org.jetbrains.annotations.NotNull;
-import william.starsight.Starsight;
 import william.starsight.graphics.GraphicsUtils;
+
+import java.nio.FloatBuffer;
 
 import static org.lwjgl.opengl.GL43.*;
 
@@ -46,7 +47,7 @@ public class SimpleMesh extends Mesh {
 		glBindVertexArray(VAO);
 		
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, vertexData, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, vertexData, GL_STATIC_DRAW); // Put in the direct FloatBuffer
 		
 		vertexFormat.setupAttributes();
 		
@@ -59,10 +60,6 @@ public class SimpleMesh extends Mesh {
 	 */
 	@Override
 	public void draw() {
-		if(Starsight.DEBUG) {
-			glPolygonMode(GL_FRONT, GL_LINE);
-		}
-
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 	}
