@@ -12,11 +12,12 @@ public interface Program extends AutoCloseable {
 	/**
 	 * Initializes the program. Meant to be called AFTER openGL is initialized through {@link GL#createCapabilities()}
 	 *
+	 * @param parent The parent window
 	 * @param initWidth  The starting width, necessary for certain perspective shaders
 	 * @param initHeight The starting height, necessary for certain perspective shaders
 	 * @param startTime  The starting time, necessary for calculating accurate delta time with calls to {@link GLFW#glfwGetTime()}
 	 */
-	void initialize(int initWidth, int initHeight, double startTime);
+	void initialize(Window parent, int initWidth, int initHeight, double startTime);
 	
 	/**
 	 * Ticks with the given delta time
@@ -74,7 +75,24 @@ public interface Program extends AutoCloseable {
 	 *
 	 * @param key    The key, defined as a {@link GLFW} constant
 	 * @param action The action, defined as a {@link GLFW} constant
-	 * @param mods
+	 * @param mods The modifiers to the key press
 	 */
 	void takeKeyEvent(int key, int action, int mods);
+
+	/**
+	 * Takes the mouse position
+	 *
+	 * @param xPos The x position
+	 * @param yPos The y position
+	 */
+	void takeMouseMovementEvent(double xPos, double yPos);
+
+	/**
+	 * Takes the mouse button presses
+	 *
+	 * @param button The button pressed, defined as a {@link GLFW} constant
+	 * @param action The action, defined as a {@link GLFW} constant
+	 * @param mods The modifiers to the mouse click
+	 */
+	void takeMouseButtonEvent(int button, int action, int mods);
 }

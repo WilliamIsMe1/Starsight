@@ -115,6 +115,10 @@ public class Window implements Runnable {
 		this.b = b;
 		this.a = a;
 	}
+
+	public void setRawMode(boolean rawMode) {
+		glfwSetInputMode(windowHandle, GLFW_RAW_MOUSE_MOTION, rawMode ? GLFW_TRUE : GLFW_FALSE);
+	}
 	
 	private void init() {
 		if (!glfwInit()) {
@@ -134,6 +138,8 @@ public class Window implements Runnable {
 		errorCallback = glfwSetErrorCallback(this::takeError);
 		keyCallback = glfwSetKeyCallback(windowHandle, this::takeKeyEvent);
 		framebufferSizeCallback = glfwSetFramebufferSizeCallback(windowHandle, this::takeResizeEvent);
+		mouseMoveCallback = glfwSetCursorPosCallback(windowHandle, this::takeMouseMovementEvent);
+		mouseButtonCallback = glfwSetMouseButtonCallback(windowHandle, this::takeMouseButtonEvent);
 		
 		GraphicsUtils.initializeGL();
 		
@@ -144,7 +150,7 @@ public class Window implements Runnable {
 		glDisable(GL_CULL_FACE);
 		
 		
-		program.initialize(width, height, glfwGetTime());
+		program.initialize(this, width, height, glfwGetTime());
 	}
 	
 	@SuppressWarnings("MethodMayBeStatic")
@@ -162,6 +168,14 @@ public class Window implements Runnable {
 	
 	private void takeKeyEvent(long windowId, int key, int scancode, int action, int mods) {
 		program.takeKeyEvent(key, action, mods);
+	}
+
+	private void takeMouseMovementEvent(long windowId, double xPos, double yPos) {
+		program.takeMouseMovementEvent(xPos, yPos);
+	}
+
+	private void takeMouseButtonEvent(long windowId, int button, int action, int mods) {
+		program.takeMouseButtonEvent(button, action, mods);
 	}
 	
 	/// Simply loops and calls the program tick and render functions

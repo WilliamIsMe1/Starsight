@@ -18,6 +18,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 @SuppressWarnings("ALL")
 public class Main implements Program {
+	Window parent = null;
 	Mesh mesh = null;
 	ShaderProgram shader = null;
 	Camera camera = new Camera(new Vector3f(0, 0, 0), 0.0f, 0.0f);
@@ -33,18 +34,20 @@ public class Main implements Program {
 	/**
 	 * Initializes the program. Meant to be called AFTER openGL is initialized through {@link org.lwjgl.opengl.GL#createCapabilities()}
 	 *
+	 * @param parent The parent window
 	 * @param initWidth  The starting width, necessary for certain perspective shaders
 	 * @param initHeight The starting height, necessary for certain perspective shaders
 	 * @param startTime  The starting time, necessary for calculating accurate delta time with calls to {@link org.lwjgl.glfw.GLFW#glfwGetTime()}
 	 */
 	@Override
-	public void initialize(int initWidth, int initHeight, double startTime) {
+	public void initialize(Window parent, int initWidth, int initHeight, double startTime) {
+		this.parent = parent;
 		aspect = (float) initWidth / initHeight;
 		float[] vertices = {
 			//  x,     y,    z,    r,    g,    b
-			-0.5f, -0.5f, -5.0f, 1.0f, 0.0f, 0.0f,
-			 0.5f, -0.5f, -5.0f, 0.0f, 1.0f, 0.0f,
-			 0.0f,  0.5f, -5.0f, 0.0f, 0.0f, 1.0f
+			-0.5f, -0.5f, -1.0f, 1.0f, 0.0f, 0.0f,
+			 0.5f, -0.5f, -1.0f, 0.0f, 1.0f, 0.0f,
+			 0.0f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f
 		};
 		VertexFormat vtx = VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC3); // Position, color
 		mesh = new SimpleMesh(vertices, vtx);
@@ -60,10 +63,9 @@ public class Main implements Program {
             out vec3 outColor;
             
             uniform mat4 p;
-			uniform mat4 v;
-            
+
             void main() {
-                gl_Position = p * v * vec4(pos, 1.0);
+                gl_Position = p * vec4(pos, 1.0);
                 outColor = color;
             }
 			""", """
@@ -104,8 +106,8 @@ public class Main implements Program {
 	@Override
 	public void render() {
 		shader.bind();
-		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f, aspect));
-		shader.setUniform("v", camera.getCameraMatrix());
+		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
+//		shader.setUniform("v", camera.getCameraMatrix());
 //		shader.setUniform("m", new Matrix4f().identity());
 		mesh.draw();
 		GraphicsUtils.checkGLError("After mesh drawing");
@@ -157,20 +159,32 @@ public class Main implements Program {
 		if (keyEnum == KeyboardKey.KEY_ESCAPE && action == GLFW_RELEASE) {
 			shouldClose = true;
 		}
-		if (keyEnum == KeyboardKey.KEY_UP && action != GLFW_RELEASE) {
-			camera.setPitchDeg(camera.getPitchDeg() + 10);
-		}
-		if (keyEnum == KeyboardKey.KEY_DOWN && action != GLFW_RELEASE) {
-			camera.setPitchDeg(camera.getPitchDeg() - 10);
-		}
-		if (keyEnum == KeyboardKey.KEY_LEFT && action != GLFW_RELEASE) {
-			camera.setYawDeg(camera.getYawDeg() - 10);
-		}
-		if (keyEnum == KeyboardKey.KEY_RIGHT && action != GLFW_RELEASE) {
-			camera.setYawDeg(camera.getYawDeg() + 10);
-		}
-		if (keyEnum == KeyboardKey.KEY_W && action != GLFW_RELEASE) {
-			camera.getPosition().add(camera.getForwardVector().normalize(0.1f));
-		}
+//		if (keyEnum == KeyboardKey.KEY_UP && action != GLFW_RELEASE) {
+//			camera.setPitchDeg(camera.getPitchDeg() + 10);
+//		}
+//		if (keyEnum == KeyboardKey.KEY_DOWN && action != GLFW_RELEASE) {
+//			camera.setPitchDeg(camera.getPitchDeg() - 10);
+//		}
+//		if (keyEnum == KeyboardKey.KEY_LEFT && action != GLFW_RELEASE) {
+//			camera.setYawDeg(camera.getYawDeg() - 10);
+//		}
+//		if (keyEnum == KeyboardKey.KEY_RIGHT && action != GLFW_RELEASE) {
+//			camera.setYawDeg(camera.getYawDeg() + 10);
+//		}
+//		if (keyEnum == KeyboardKey.KEY_W && action != GLFW_RELEASE) {
+//			camera.getPosition().add(camera.getForwardVector().normalize(0.1f));
+//		}
 	}
+
+	@Override
+	public void takeMouseMovementEvent(double xPos, double yPos) {
+
+	}
+
+	@Override
+	public void takeMouseButtonEvent(int button, int action, int mods) {
+
+	}
+
+
 }
