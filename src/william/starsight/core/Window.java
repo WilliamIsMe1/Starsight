@@ -147,7 +147,7 @@ public class Window implements Runnable {
 		glfwSwapInterval(0);
 		
 		glEnable(GL_DEPTH_TEST);
-		glDisable(GL_CULL_FACE);
+		glEnable(GL_CULL_FACE);
 		
 		
 		program.initialize(this, width, height, glfwGetTime());

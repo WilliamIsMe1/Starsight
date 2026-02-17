@@ -3,8 +3,6 @@ package william.starsight.graphics.mesh;
 import org.jetbrains.annotations.NotNull;
 import william.starsight.graphics.GraphicsUtils;
 
-import java.nio.FloatBuffer;
-
 import static org.lwjgl.opengl.GL43.*;
 
 /**
@@ -31,10 +29,7 @@ public class SimpleMesh extends Mesh {
 		this.vertexFormat = vertexFormat;
 		this.vertexCount = vertexData.length / (vertexFormat.getStrideInFloats());
 	}
-	
-	/**
-	 * Uploads the mesh to the GPU
-	 */
+
 	@Override
 	public void initialize() {
 		if (!GraphicsUtils.isGLInitialized()) {
@@ -54,19 +49,13 @@ public class SimpleMesh extends Mesh {
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);   // can be added after glBufferData(...)
 	}
-	
-	/**
-	 * Draws the Mesh to the GPU
-	 */
+
 	@Override
 	public void draw() {
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 	}
-	
-	/**
-	 * This must be implemented by subclasses to clean up their own crap
-	 */
+
 	@Override
 	protected void subclassCleanup() {
 		glDeleteBuffers(VBO);

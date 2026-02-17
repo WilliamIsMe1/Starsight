@@ -1,13 +1,9 @@
-import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import william.starsight.Starsight;
 import william.starsight.core.Program;
 import william.starsight.core.Window;
 import william.starsight.graphics.GraphicsUtils;
-import william.starsight.graphics.mesh.Mesh;
-import william.starsight.graphics.mesh.SimpleMesh;
-import william.starsight.graphics.mesh.VertexFormat;
-import william.starsight.graphics.mesh.VertexFormatType;
+import william.starsight.graphics.mesh.*;
 import william.starsight.graphics.shader.ShaderCompilationException;
 import william.starsight.graphics.shader.ShaderLinkingException;
 import william.starsight.graphics.shader.ShaderProgram;
@@ -47,13 +43,13 @@ public class Main implements Program {
 			//  x,     y,    z,    r,    g,    b
 			-0.5f, -0.5f, -1.0f, 1.0f, 0.0f, 0.0f,
 			 0.5f, -0.5f, -1.0f, 0.0f, 1.0f, 0.0f,
-			 0.0f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f
+			 0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f,
+			-0.5f,  0.5f, -1.0f, 1.0f, 1.0f, 1.0f
 		};
 		VertexFormat vtx = VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC3); // Position, color
-		mesh = new SimpleMesh(vertices, vtx);
+		mesh = new EBOMesh(vertices, new int[] {0, 1, 2, 2, 3, 0} , vtx);
 		mesh.initialize();
-		GraphicsUtils.checkGLError("After mesh initialization");
-		
+
 		shader = new ShaderProgram("""
 			#version 430
             
@@ -61,11 +57,10 @@ public class Main implements Program {
             layout(location = 1) in vec3 color;
             
             out vec3 outColor;
-            
-            uniform mat4 p;
+          
 
             void main() {
-                gl_Position = p * vec4(pos, 1.0);
+                gl_Position = vec4(pos, 1.0);
                 outColor = color;
             }
 			""", """
@@ -106,7 +101,7 @@ public class Main implements Program {
 	@Override
 	public void render() {
 		shader.bind();
-		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
+//		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
 //		shader.setUniform("v", camera.getCameraMatrix());
 //		shader.setUniform("m", new Matrix4f().identity());
 		mesh.draw();
