@@ -1,4 +1,3 @@
-import org.joml.Vector3f;
 import william.starsight.Starsight;
 import william.starsight.core.Program;
 import william.starsight.core.Window;
@@ -7,7 +6,9 @@ import william.starsight.graphics.mesh.*;
 import william.starsight.graphics.shader.ShaderCompilationException;
 import william.starsight.graphics.shader.ShaderLinkingException;
 import william.starsight.graphics.shader.ShaderProgram;
-import william.starsight.util.Camera;
+import william.starsight.graphics.texture.SimpleTexture;
+import william.starsight.graphics.texture.Texture;
+//import william.starsight.util.Camera;
 import william.starsight.util.KeyboardKey;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -15,9 +16,40 @@ import static org.lwjgl.glfw.GLFW.*;
 @SuppressWarnings("ALL")
 public class Main implements Program {
 	Window parent = null;
-	Mesh mesh = null;
-	ShaderProgram shader = null;
-	Camera camera = new Camera(new Vector3f(0, 0, 0), 0.0f, 0.0f);
+	Mesh mesh = new EBOMesh(new float[]{
+			//  x,     y,    z,    u,    v,
+			-0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
+			0.5f, -0.5f, -1.0f, 1.0f, 0.0f,
+			0.5f,  0.5f, -1.0f, 1.0f, 1.0f,
+			-0.5f,  0.5f, -1.0f, 0.0f, 1.0f,
+	}, new int[] {0, 1, 2, 2, 3, 0} , VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC2));
+	ShaderProgram shader = new ShaderProgram("""
+			#version 430
+            
+            layout(location = 0) in vec3 pos;
+            layout(location = 1) in vec2 uv;
+            
+            out vec2 outUV;
+
+            void main() {
+                gl_Position = vec4(pos, 1.0);
+                outUV = uv;
+            }
+			""", """
+				#version 430
+				
+				in vec2 outUV;
+				
+				uniform sampler2D ourTexture;
+				
+				out vec4 FragColor;
+				
+				void main() {
+					FragColor = texture(ourTexture, outUV);
+				}
+				""");
+	Texture texture = new SimpleTexture("/home/william/Desktop/Starsight/res/container.jpg");
+//	Camera camera = new Camera(new Vector3f(0, 0, 0), 0.0f, 0.0f);
 	float aspect = 0.0f;
 	
 	public static void main(String[] args) {
@@ -39,41 +71,8 @@ public class Main implements Program {
 	public void initialize(Window parent, int initWidth, int initHeight, double startTime) {
 		this.parent = parent;
 		aspect = (float) initWidth / initHeight;
-		float[] vertices = {
-			//  x,     y,    z,    r,    g,    b
-			-0.5f, -0.5f, -1.0f, 1.0f, 0.0f, 0.0f,
-			 0.5f, -0.5f, -1.0f, 0.0f, 1.0f, 0.0f,
-			 0.5f,  0.5f, -1.0f, 0.0f, 0.0f, 1.0f,
-			-0.5f,  0.5f, -1.0f, 1.0f, 1.0f, 1.0f
-		};
-		VertexFormat vtx = VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC3); // Position, color
-		mesh = new EBOMesh(vertices, new int[] {0, 1, 2, 2, 3, 0} , vtx);
+
 		mesh.initialize();
-
-		shader = new ShaderProgram("""
-			#version 430
-            
-            layout(location = 0) in vec3 pos;
-            layout(location = 1) in vec3 color;
-            
-            out vec3 outColor;
-          
-
-            void main() {
-                gl_Position = vec4(pos, 1.0);
-                outColor = color;
-            }
-			""", """
-				#version 430
-				
-				in vec3 outColor;
-				
-				out vec4 FragColor;
-				
-				void main() {
-					FragColor = vec4(outColor, 1.0);
-				}
-				""");
 		
 		try {
 			shader.compileAndLink();
@@ -85,6 +84,7 @@ public class Main implements Program {
 			Starsight.LOG.severe("Shaders failed to link");
 			throw new RuntimeException(e);
 		}
+		texture.initialize();
 	}
 	
 	/**
