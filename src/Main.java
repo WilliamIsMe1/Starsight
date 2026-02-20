@@ -138,13 +138,11 @@ public class Main implements Program {
 //		texture.bind();
 //		shader.bind();
 //		shader.setUniform("perspective", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
-////		shader.setUniform("v", camera.getCameraMatrix());
-////		shader.setUniform("m", new Matrix4f().identity());
 //		mesh.render();
 //		shader.unbind();
 //		texture.unbind();
 		shader1.bind();
-		shader1.setUniform("p", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
+		shader1.setUniform("p", Camera.getPerspectiveMatrix((float) Math.toRadians(70.0f), aspect));
 		mesh2.render();
 		shader1.unbind();
 	}

@@ -27,6 +27,7 @@ public class SimpleTexture extends Texture {
         glGenerateMipmap(GL_TEXTURE_2D);
         STBImage.stbi_image_free(imageData);
 
+        glBindTexture(GL_TEXTURE_2D, textureId);
     }
 
     @Override

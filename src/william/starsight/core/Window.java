@@ -31,13 +31,13 @@ public class Window implements Runnable {
 	@SuppressWarnings({"MagicNumber", "RedundantSuppression"}) // Suppress one, it complains about redundant suppression on others. Suppress that :)
 	private float r = 0.6f, g = 0.9f, b = 0.9f, a = 1.0f;
 	
-	private GLFWErrorCallback errorCallback;
-	private GLFWFramebufferSizeCallback framebufferSizeCallback;
-	private GLFWWindowCloseCallback windowCloseCallback;
-	private GLFWKeyCallback keyCallback;
-	private GLFWMouseButtonCallback mouseButtonCallback;
-	private GLFWWindowPosCallback repositionCallback;
-	private GLFWCursorPosCallback mouseMoveCallback;
+	private GLFWErrorCallback errorCallback = null;
+	private GLFWFramebufferSizeCallback framebufferSizeCallback = null;
+	private GLFWWindowCloseCallback windowCloseCallback = null;
+	private GLFWKeyCallback keyCallback = null;
+	private GLFWMouseButtonCallback mouseButtonCallback = null;
+	private GLFWWindowPosCallback repositionCallback = null;
+	private GLFWCursorPosCallback mouseMoveCallback = null;
 	
 	/**
 	 * Constructs a window with the given program
@@ -140,6 +140,7 @@ public class Window implements Runnable {
 		framebufferSizeCallback = glfwSetFramebufferSizeCallback(windowHandle, this::takeResizeEvent);
 		mouseMoveCallback = glfwSetCursorPosCallback(windowHandle, this::takeMouseMovementEvent);
 		mouseButtonCallback = glfwSetMouseButtonCallback(windowHandle, this::takeMouseButtonEvent);
+		windowCloseCallback = glfwSetWindowCloseCallback(windowHandle, this::closeWindow);
 		
 		GraphicsUtils.initializeGL();
 		
@@ -152,14 +153,18 @@ public class Window implements Runnable {
 		
 		program.initialize(this, width, height, glfwGetTime());
 	}
-	
+
+	private void closeWindow(long windowId) { // Let's see if this works.
+		glfwSetWindowShouldClose(windowId, true);
+	}
+
 	@SuppressWarnings("MethodMayBeStatic")
 	private void takeError(int errorCode, long descriptionPointer) {
 		String description = MemoryUtil.memUTF8(descriptionPointer);
 		Starsight.LOG.severe("[LWJGL] Error(" + errorCode + ") " + description);
 	}
 	
-	private void takeResizeEvent(long windowHandle, int newWidth, int newHeight) {
+	private void takeResizeEvent(long windowId, int newWidth, int newHeight) {
 		this.width = newWidth;
 		this.height = newHeight;
 		program.resized(newWidth, newHeight);
