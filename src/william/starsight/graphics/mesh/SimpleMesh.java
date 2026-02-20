@@ -51,7 +51,7 @@ public class SimpleMesh extends Mesh {
 	}
 
 	@Override
-	public void draw() {
+	public void render() {
 		glBindVertexArray(VAO);
 		glDrawArrays(GL_TRIANGLES, 0, vertexCount);
 	}

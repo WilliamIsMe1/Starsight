@@ -53,7 +53,7 @@ public class EBOMesh extends Mesh {
     }
 
     @Override
-    public void draw() {
+    public void render() {
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, indices.length, GL_UNSIGNED_INT, 0L); // I think this works...
     }

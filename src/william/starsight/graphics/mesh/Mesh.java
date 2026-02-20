@@ -1,9 +1,6 @@
 package william.starsight.graphics.mesh;
 
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.system.MemoryUtil;
-
-import java.nio.FloatBuffer;
 
 /**
  * A set of vertices recognized by OpenGL
@@ -11,6 +8,7 @@ import java.nio.FloatBuffer;
  * @author William
  */
 public abstract class Mesh implements AutoCloseable {
+	private boolean cleanedUp = false;
 	protected float[] vertexData;
 	
 	protected Mesh(float @NotNull [] vertexData) {
@@ -25,12 +23,14 @@ public abstract class Mesh implements AutoCloseable {
 	/**
 	 * Draws the Mesh to the GPU
 	 */
-	public abstract void draw();
+	public abstract void render();
 	
 	/**
 	 * Cleans up all resources associated with the Mesh, including the vertex data
 	 */
 	public final void cleanup() {
+		if (cleanedUp)
+			return;
 		vertexData = null;
 		subclassCleanup();
 	}

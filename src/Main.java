@@ -104,7 +104,7 @@ public class Main implements Program {
 //		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
 //		shader.setUniform("v", camera.getCameraMatrix());
 //		shader.setUniform("m", new Matrix4f().identity());
-		mesh.draw();
+		mesh.render();
 		GraphicsUtils.checkGLError("After mesh drawing");
 		shader.unbind();
 	}
