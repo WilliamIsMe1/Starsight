@@ -8,7 +8,7 @@ import william.starsight.graphics.shader.ShaderLinkingException;
 import william.starsight.graphics.shader.ShaderProgram;
 import william.starsight.graphics.texture.SimpleTexture;
 import william.starsight.graphics.texture.Texture;
-//import william.starsight.util.Camera;
+import william.starsight.util.Camera;
 import william.starsight.util.KeyboardKey;
 
 import static org.lwjgl.glfw.GLFW.*;
@@ -18,11 +18,16 @@ public class Main implements Program {
 	Window parent = null;
 	Mesh mesh = new EBOMesh(new float[]{
 			//  x,     y,    z,    u,    v,
-			-0.5f, -0.5f, -1.0f, 0.0f, 0.0f,
-			0.5f, -0.5f, -1.0f, 1.0f, 0.0f,
-			0.5f,  0.5f, -1.0f, 1.0f, 1.0f,
-			-0.5f,  0.5f, -1.0f, 0.0f, 1.0f,
+			-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
+			0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
+			0.5f,  0.5f, -0.1f, 1.0f, 1.0f,
+			-0.5f,  0.5f, -0.1f, 0.0f, 1.0f,
 	}, new int[] {0, 1, 2, 2, 3, 0} , VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC2));
+	Mesh mesh2 = new SimpleMesh(new float[] {
+			-0.5f, -0.5f, -0.3f, 1.0f, 0.0f, 0.0f,
+			0.5f, -0.5f, -0.3f, 0.0f, 1.0f, 0.0f,
+			0.0f, 0.5f, -0.3f, 0.0f, 0.0f, 1.0f
+	}, VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC3));
 	ShaderProgram shader = new ShaderProgram("""
 			#version 430
             
@@ -30,9 +35,11 @@ public class Main implements Program {
             layout(location = 1) in vec2 uv;
             
             out vec2 outUV;
+            
+            uniform mat4 perspective;
 
             void main() {
-                gl_Position = vec4(pos, 1.0);
+                gl_Position = perspective * vec4(pos, 1.0);
                 outUV = uv;
             }
 			""", """
@@ -48,6 +55,31 @@ public class Main implements Program {
 					FragColor = texture(ourTexture, outUV);
 				}
 				""");
+	ShaderProgram shader1 = new ShaderProgram("""
+			#version 430
+			
+			layout(location = 0) in vec3 position;
+			layout(location = 1) in vec3 color;
+			
+			out vec3 pass_color;
+			
+			uniform mat4 p;
+			
+			void main() {
+				gl_Position = p * vec4(position, 1.0);
+				pass_color = color;
+			}
+			""", """
+			#version 430
+			
+			in vec3 pass_color;
+			
+			out vec4 FragColor;
+			
+			void main() {
+				FragColor = vec4(pass_color, 1.0);
+			}
+			""");
 	Texture texture = new SimpleTexture("/home/william/Desktop/Starsight/res/container.jpg");
 //	Camera camera = new Camera(new Vector3f(0, 0, 0), 0.0f, 0.0f);
 	float aspect = 0.0f;
@@ -73,9 +105,12 @@ public class Main implements Program {
 		aspect = (float) initWidth / initHeight;
 
 		mesh.initialize();
+
+		mesh2.initialize();
 		
 		try {
 			shader.compileAndLink();
+			shader1.compileAndLink();
 			GraphicsUtils.checkGLError("after shader compilation and linking");
 		} catch (ShaderCompilationException e) {
 			Starsight.LOG.severe("Shaders failed to compile");
@@ -100,13 +135,18 @@ public class Main implements Program {
 	 */
 	@Override
 	public void render() {
-		shader.bind();
-//		shader.setUniform("p", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
-//		shader.setUniform("v", camera.getCameraMatrix());
-//		shader.setUniform("m", new Matrix4f().identity());
-		mesh.render();
-		GraphicsUtils.checkGLError("After mesh drawing");
-		shader.unbind();
+//		texture.bind();
+//		shader.bind();
+//		shader.setUniform("perspective", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
+////		shader.setUniform("v", camera.getCameraMatrix());
+////		shader.setUniform("m", new Matrix4f().identity());
+//		mesh.render();
+//		shader.unbind();
+//		texture.unbind();
+		shader1.bind();
+		shader1.setUniform("p", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
+		mesh2.render();
+		shader1.unbind();
 	}
 	
 	/**
