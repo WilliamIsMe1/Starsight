@@ -11,7 +11,7 @@ import william.coreutils.MathUtils;
  *
  * @author William
  */
-public class Camera {
+public class Camera { // TODO: Fix this and then hook it up to the mouse on the test program
 	/**
 	 * A constant that deals with perspective matrices
 	 */
@@ -75,7 +75,7 @@ public class Camera {
 	}
 
 	public void setPitch(float newPitch) {
-		this.pitch = pitch;
+		this.pitch = newPitch;
 	}
 
 	public void letMouseChangeAngle(float xOffset, float yOffset) {

@@ -149,7 +149,7 @@ public class Window implements Runnable {
 		
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
-		
+		glFrontFace(GL_CCW);
 		
 		program.initialize(this, width, height, glfwGetTime());
 	}
