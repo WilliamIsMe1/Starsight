@@ -12,6 +12,7 @@ import william.coreutils.MathUtils;
  * @author William
  */
 public class Camera { // TODO: Fix this and then hook it up to the mouse on the test program
+                      // Problem: I don't really know how it is broken and so obviously i will need to check for more errors
 	/**
 	 * A constant that deals with perspective matrices
 	 */
@@ -29,10 +30,10 @@ public class Camera { // TODO: Fix this and then hook it up to the mouse on the 
 	public static final float DEFAULT_MOUSE_SENSITIVITY = 0.1f;
 	public static final float DEFAULT_ZOOM = 45.0f;
 
-	private Vector3f position;
-	private Vector3f front;
-	private Vector3f up;
-	private Vector3f right;
+	private final Vector3f position;
+	private final Vector3f front;
+	private final Vector3f up;
+	private final Vector3f right;
 	private final Vector3f worldUp = new Vector3f(0.0f, 1.0f, 0.0f);
 
 	private float yaw;
@@ -106,10 +107,10 @@ public class Camera { // TODO: Fix this and then hook it up to the mouse on the 
 	 * @param aspect The aspect ratio of the viewport
 	 * @return A perspective matrix
 	 */
-	public static Matrix4f getPerspectiveMatrix(float fov, float aspect) {
+	public static Matrix4f getPerspectiveMatrix(float fov, float aspect, float near, float far) {
 		fov = MathUtils.clamp(fov, MINIMUM_FOV, MAXIMUM_FOV); // Yes, I know reassigning parameter variables is bad practice, but we only use this value as clamped.
 		
-		return new Matrix4f().identity().perspective(fov, aspect, 0.1f, FAR_CLIP_PLANE);
+		return new Matrix4f().identity().perspective(fov, aspect, near, far);
 	}
 
 	private void updateCameraVectors() {
@@ -117,7 +118,7 @@ public class Camera { // TODO: Fix this and then hook it up to the mouse on the 
 		front.y = (float) Math.sin(Math.toRadians(pitch));
 		front.z = (float) (Math.sin(Math.toRadians(yaw)) * Math.cos(Math.toRadians(pitch)));
 		front.normalize();
-		this.right = front.cross(worldUp, right).normalize(); // No new allocations since "right" is the destination
-		this.up = right.cross(front, up).normalize();
+		front.cross(worldUp, right).normalize(); // No new allocations since "right" is the destination
+		right.cross(front, up).normalize();
 	}
 }

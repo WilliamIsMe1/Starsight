@@ -1,223 +1,97 @@
-import william.starsight.Starsight;
+
 import william.starsight.core.Program;
 import william.starsight.core.Window;
-import william.starsight.graphics.GraphicsUtils;
-import william.starsight.graphics.mesh.*;
-import william.starsight.graphics.shader.ShaderCompilationException;
-import william.starsight.graphics.shader.ShaderLinkingException;
-import william.starsight.graphics.shader.ShaderProgram;
-import william.starsight.graphics.texture.SimpleTexture;
-import william.starsight.graphics.texture.Texture;
-import william.starsight.util.Camera;
+import william.starsight.graphics.mesh.Mesh;
+import william.starsight.graphics.mesh.Tesselator;
 import william.starsight.util.KeyboardKey;
 
-import static org.lwjgl.glfw.GLFW.*;
-
+/**
+ * This demo will be that of several cubes in space and us moving around
+ */
 @SuppressWarnings("ALL")
 public class Main implements Program {
-	Window parent = null;
-	Mesh mesh = new EBOMesh(new float[]{
-			//  x,     y,    z,    u,    v,
-			-0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-			0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-			0.5f,  0.5f, -0.1f, 1.0f, 1.0f,
-			-0.5f,  0.5f, -0.1f, 0.0f, 1.0f,
-	}, new int[] {0, 1, 2, 2, 3, 0} , VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC2));
-	Mesh mesh2 = new SimpleMesh(new float[] {
-			-0.5f, -0.5f, -0.3f, 1.0f, 0.0f, 0.0f,
-			0.5f, -0.5f, -0.3f, 0.0f, 1.0f, 0.0f,
-			0.0f, 0.5f, -0.3f, 0.0f, 0.0f, 1.0f
-	}, VertexFormat.of(VertexFormatType.VEC3, VertexFormatType.VEC3));
-	ShaderProgram shader = new ShaderProgram("""
-			#version 430
-            
-            layout(location = 0) in vec3 pos;
-            layout(location = 1) in vec2 uv;
-            
-            out vec2 outUV;
-            
-            uniform mat4 perspective;
+    Window parent = null;
 
-            void main() {
-                gl_Position = perspective * vec4(pos, 1.0);
-                outUV = uv;
+    float aspect = 0.0f;
+
+    double currentTime = 0.0;
+
+    Tesselator tess = Tesselator.INSTANCE;
+
+    Mesh cubes = null;
+
+    @Override
+    public void initialize(Window parent, int initWidth, int initHeight, double startTime) {
+        this.parent = null;
+        this.aspect = (float) initWidth / initHeight;
+
+        currentTime = startTime;
+
+        parent.captureMouse();
+
+        // Create a cube
+        tess.addQuad(0.5f, 0.0f, 0.0f, Tesselator.QuadDirection.POS_X, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        tess.addQuad(-0.5f, 0.0f, 0.0f, Tesselator.QuadDirection.NEG_X, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        tess.addQuad(0.0f, 0.5f, 0.0f, Tesselator.QuadDirection.POS_Y, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        tess.addQuad(0.0f, -0.5f, 0.0f, Tesselator.QuadDirection.NEG_Y, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        tess.addQuad(0.0f, 0.0f, 0.5f, Tesselator.QuadDirection.POS_Z, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+        tess.addQuad(0.0f, 0.0f, -0.5f, Tesselator.QuadDirection.NEG_Z, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
+
+        cubes = tess.flushMesh();
+        cubes.initialize(); // Upload to GPU :)
+    }
+
+    @Override
+    public void tick() {
+
+    }
+
+    @Override
+    public void render() {
+
+    }
+
+    @Override
+    public void cleanup() {
+
+    }
+
+    @Override
+    public boolean shouldClose() {
+        return false;
+    }
+
+    @Override
+    public void resized(int newWidth, int newHeight) {
+
+    }
+
+    @Override
+    public void takeKeyEvent(int key, int action, int mods) {
+        var keyAsEnum = KeyboardKey.fromKeyCode(key);
+        switch (keyAsEnum) {
+            case KeyboardKey.KEY_W -> {
+                /* cameraPos += cameraSpeed * cameraFront; */
             }
-			""", """
-				#version 430
-				
-				in vec2 outUV;
-				
-				uniform sampler2D ourTexture;
-				
-				out vec4 FragColor;
-				
-				void main() {
-					FragColor = texture(ourTexture, outUV);
-				}
-				""");
-	ShaderProgram shader1 = new ShaderProgram("""
-			#version 430
-			
-			layout(location = 0) in vec3 position;
-			layout(location = 1) in vec3 color;
-			
-			out vec3 pass_color;
-			
-			uniform mat4 p;
-			
-			void main() {
-				gl_Position = p * vec4(position, 1.0);
-				pass_color = color;
-			}
-			""", """
-			#version 430
-			
-			in vec3 pass_color;
-			
-			out vec4 FragColor;
-			
-			void main() {
-				FragColor = vec4(pass_color, 1.0);
-			}
-			""");
-	Texture texture = new SimpleTexture("/home/william/Desktop/Starsight/res/container.jpg");
-//	Camera camera = new Camera(new Vector3f(0, 0, 0), 0.0f, 0.0f);
-	float aspect = 0.0f;
-	
-	public static void main(String[] args) {
-		Window w = new Window(new Main());
-		Thread windowThread = new Thread(w);
-		windowThread.start();
-		w.setClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	}
-	
-	/**
-	 * Initializes the program. Meant to be called AFTER openGL is initialized through {@link org.lwjgl.opengl.GL#createCapabilities()}
-	 *
-	 * @param parent The parent window
-	 * @param initWidth  The starting width, necessary for certain perspective shaders
-	 * @param initHeight The starting height, necessary for certain perspective shaders
-	 * @param startTime  The starting time, necessary for calculating accurate delta time with calls to {@link org.lwjgl.glfw.GLFW#glfwGetTime()}
-	 */
-	@Override
-	public void initialize(Window parent, int initWidth, int initHeight, double startTime) {
-		this.parent = parent;
-		aspect = (float) initWidth / initHeight;
+            case KeyboardKey.KEY_A -> {
+                /* cameraPos -= normalize(cross(cameraFront, cameraUp)) * cameraSpeed; */
+            }
+            case KeyboardKey.KEY_S -> {
+                /* cameraPos -= cameraSpeed * cameraFront; */
+            }
+            case KeyboardKey.KEY_D -> {
+                /* cameraPos += normalize(cross(cameraFront, cameraUp)) * cameraSpeed; */
+            }
+        };
+    }
 
-		mesh.initialize();
+    @Override
+    public void takeMouseMovementEvent(double xPos, double yPos) {
 
-		mesh2.initialize();
-		
-		try {
-			shader.compileAndLink();
-			shader1.compileAndLink();
-			GraphicsUtils.checkGLError("after shader compilation and linking");
-		} catch (ShaderCompilationException e) {
-			Starsight.LOG.severe("Shaders failed to compile");
-			throw new RuntimeException(e);
-		} catch (ShaderLinkingException e) {
-			Starsight.LOG.severe("Shaders failed to link");
-			throw new RuntimeException(e);
-		}
-		texture.initialize();
-	}
-	
-	/**
-	 * Ticks with the given delta time
-	 */
-	@Override
-	public void tick() {
-//		Starsight.LOG.info("Camera pitch: " + camera.getPitchDeg() + " yaw: " + camera.getYawDeg());
-	}
-	
-	/**
-	 * Renders the program
-	 */
-	@Override
-	public void render() {
-//		texture.bind();
-//		shader.bind();
-//		shader.setUniform("perspective", Camera.getPerspectiveMatrix(70.0f * (float) Math.PI / 180.0f, aspect));
-//		mesh.render();
-//		shader.unbind();
-//		texture.unbind();
-		shader1.bind();
-		shader1.setUniform("p", Camera.getPerspectiveMatrix((float) Math.toRadians(70.0f), aspect));
-		mesh2.render();
-		shader1.unbind();
-	}
-	
-	/**
-	 * This cleans up the entire program to make it ready for shutdown
-	 */
-	@Override
-	public void cleanup() {
-		mesh.cleanup();
-		shader.cleanup();
-	}
-	
-	/**
-	 * This allows the program to want to exit the code
-	 *
-	 * @return Whether the program should close
-	 */
-	@Override
-	public boolean shouldClose() {
-		return shouldClose;
-	}
-	
-	private boolean shouldClose = false;
-	
-	/**
-	 * Called whenever the framebuffer resizes
-	 *
-	 * @param newWidth  The new width
-	 * @param newHeight The new height
-	 */
-	@Override
-	public void resized(int newWidth, int newHeight) {
-		aspect = (float) newWidth / newHeight;
-	}
-	
-	/**
-	 * Takes a key event from the window as part of the input callback system
-	 *
-	 * @param key    The key, defined as a {@link org.lwjgl.glfw.GLFW} constant
-	 * @param action The action, defined as a {@link org.lwjgl.glfw.GLFW} constant
-	 * @param mods
-	 */
-	@Override
-	public void takeKeyEvent(int key, int action, int mods) {
-		KeyboardKey keyEnum = KeyboardKey.fromKeyCode(key);
-		if (keyEnum == KeyboardKey.KEY_ESCAPE && action == GLFW_RELEASE) {
-			shouldClose = true;
-		}
-//		if (keyEnum == KeyboardKey.KEY_UP && action != GLFW_RELEASE) {
-//			camera.setPitchDeg(camera.getPitchDeg() + 10);
-//		}
-//		if (keyEnum == KeyboardKey.KEY_DOWN && action != GLFW_RELEASE) {
-//			camera.setPitchDeg(camera.getPitchDeg() - 10);
-//		}
-//		if (keyEnum == KeyboardKey.KEY_LEFT && action != GLFW_RELEASE) {
-//			camera.setYawDeg(camera.getYawDeg() - 10);
-//		}
-//		if (keyEnum == KeyboardKey.KEY_RIGHT && action != GLFW_RELEASE) {
-//			camera.setYawDeg(camera.getYawDeg() + 10);
-//		}
-//		if (keyEnum == KeyboardKey.KEY_W && action != GLFW_RELEASE) {
-//			camera.getPosition().add(camera.getForwardVector().normalize(0.1f));
-//		}
-	}
+    }
 
-	@Override
-	public void takeMouseMovementEvent(double xPos, double yPos) {
+    @Override
+    public void takeMouseButtonEvent(int button, int action, int mods) {
 
-	}
-
-	@Override
-	public void takeMouseButtonEvent(int button, int action, int mods) {
-
-	}
-
-
+    }
 }

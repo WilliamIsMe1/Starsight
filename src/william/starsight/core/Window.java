@@ -116,9 +116,15 @@ public class Window implements Runnable {
 		this.a = a;
 	}
 
-	public void setRawMode(boolean rawMode) {
-		glfwSetInputMode(windowHandle, GLFW_RAW_MOUSE_MOTION, rawMode ? GLFW_TRUE : GLFW_FALSE);
+	public void captureMouse() {
+		glfwSetInputMode(windowHandle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+        glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	}
+
+    public void letGoOfMouse() {
+        glfwSetInputMode(windowHandle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+        glfwSetInputMode(windowHandle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
 	
 	private void init() {
 		if (!glfwInit()) {
@@ -161,7 +167,7 @@ public class Window implements Runnable {
 	@SuppressWarnings("MethodMayBeStatic")
 	private void takeError(int errorCode, long descriptionPointer) {
 		String description = MemoryUtil.memUTF8(descriptionPointer);
-		Starsight.LOG.severe("[LWJGL] Error(" + errorCode + ") " + description);
+		Starsight.LWJGL.severe("Error(" + errorCode + ") " + description);
 	}
 	
 	private void takeResizeEvent(long windowId, int newWidth, int newHeight) {

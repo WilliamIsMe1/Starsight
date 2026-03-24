@@ -2,7 +2,8 @@ package william.starsight;
 
 import org.jetbrains.annotations.Contract;
 
-import java.util.logging.Logger;
+import william.coreutils.starchart.StarchartLogger;
+
 
 /**
  * The library behind my 3d rendering code
@@ -28,6 +29,11 @@ public final class Starsight {
 	/**
 	 * The logger for the class
 	 */
-	public static final Logger LOG = Logger.getLogger("starsight");
+	public static final StarchartLogger LOG = StarchartLogger.ROOT.createChild("starsight", StarchartLogger.Level.INFO);
+
+    /**
+     * The logger for LWJGL
+     */
+    public static final StarchartLogger LWJGL = LOG.createChild("lwjgl", StarchartLogger.Level.FINE);
 
 }
