@@ -207,6 +207,7 @@ public class Tesselator {
         buffer[bufferPosition + 31] = nZ;
 
         quadCount++;
+        bufferPosition += 32; // Issue #1: FIXED
     }
 
     public enum QuadDirection {
