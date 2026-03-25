@@ -96,6 +96,18 @@ public class Camera { // TODO: Fix this and then hook it up to the mouse on the 
 		this.position.add(transformation);
 	}
 
+    public Vector3f getFront() {
+        return front;
+    }
+
+    public Vector3f getUp() {
+        return up;
+    }
+
+    public Vector3f getPosition() {
+        return position;
+    }
+
 	public void setZoom(float newZoom) {
 		this.zoom = newZoom;
 	}
@@ -106,6 +118,8 @@ public class Camera { // TODO: Fix this and then hook it up to the mouse on the 
 	 * @param fov The FOV of the matrix
 	 * @param aspect The aspect ratio of the viewport
 	 * @return A perspective matrix
+     *
+     * @apiNote JOML uses degrees for some reason for FOV, so please keep that in mind.
 	 */
 	public static Matrix4f getPerspectiveMatrix(float fov, float aspect, float near, float far) {
 		fov = MathUtils.clamp(fov, MINIMUM_FOV, MAXIMUM_FOV); // Yes, I know reassigning parameter variables is bad practice, but we only use this value as clamped.

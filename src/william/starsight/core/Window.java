@@ -70,12 +70,10 @@ public class Window implements Runnable {
 			loop();
 		} catch (Exception e) {
 			Starsight.LOG.severe("Something bad happened: " + e.getClass().getSimpleName() + " said " + e.getMessage()); // This is a clear log of everything that went wrong
-			Starsight.LOG.severe("At: " + e.getStackTrace()[0].getFileName() + ":" + e.getStackTrace()[0].getLineNumber());
-			Starsight.LOG.severe("At: " + e.getStackTrace()[1].getFileName() + ":" + e.getStackTrace()[1].getLineNumber());
-			Starsight.LOG.severe("At: " + e.getStackTrace()[2].getFileName() + ":" + e.getStackTrace()[2].getLineNumber());
-			Starsight.LOG.severe("At: " + e.getStackTrace()[3].getFileName() + ":" + e.getStackTrace()[3].getLineNumber());
-			Starsight.LOG.severe("At: " + e.getStackTrace()[4].getFileName() + ":" + e.getStackTrace()[4].getLineNumber());
-		} finally {
+            for (int i = 0; i < e.getStackTrace().length; i++) {
+                Starsight.LOG.severe("At: " + e.getStackTrace()[i].getFileName() + ":" + e.getStackTrace()[i].getLineNumber());
+            }
+        } finally {
 			cleanup(); // Make SURE to do this. If this isn't done, there could be leaks
 		}
 	}
@@ -195,8 +193,8 @@ public class Window implements Runnable {
 			glClearColor(r, g, b, a);
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
-			program.tick();
-			program.render();
+			program.tick(glfwGetTime());
+			program.render(glfwGetTime());
 			
 			glfwSwapBuffers(windowHandle);
 			glfwPollEvents();

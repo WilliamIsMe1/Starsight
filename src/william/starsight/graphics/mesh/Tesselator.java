@@ -20,7 +20,7 @@ public class Tesselator {
         int four = 2;
         int five = 3;
         int six = 0;
-        for (int i = 0; i < premadeIndices.length; i += 6) {
+        for (int i = 0; i < premadeIndices.length - 6; i += 6) {
             premadeIndices[i] = one;
             premadeIndices[i + 1] = two;
             premadeIndices[i + 2] = three;
@@ -84,6 +84,7 @@ public class Tesselator {
                 z2 = z + widthHalf;
                 z3 = z + widthHalf;
                 z4 = z - widthHalf;
+                break;
             }
             case NEG_Y -> {
                 x1 = x - widthHalf;
@@ -98,6 +99,7 @@ public class Tesselator {
                 z2 = z - heightHalf;
                 z3 = z - heightHalf;
                 z4 = z + heightHalf;
+                break;
             }
             case NEG_Z -> {
                 x1 = x + widthHalf;
@@ -112,6 +114,7 @@ public class Tesselator {
                 z2 = z;
                 z3 = z;
                 z4 = z;
+                break;
             }
             case POS_X -> {
                 x1 = x;
@@ -126,6 +129,7 @@ public class Tesselator {
                 z2 = z - widthHalf;
                 z3 = z - widthHalf;
                 z4 = z + widthHalf;
+                break;
             }
             case POS_Y -> {
                 x1 = x - widthHalf;
@@ -140,6 +144,7 @@ public class Tesselator {
                 z2 = z + heightHalf;
                 z3 = z + heightHalf;
                 z4 = z - heightHalf;
+                break;
             }
             case POS_Z -> {
                 x1 = x - widthHalf;
@@ -154,17 +159,18 @@ public class Tesselator {
                 z2 = z;
                 z3 = z;
                 z4 = z;
+                break;
             }
-            case null -> throw new NullPointerException("I legit don't know how this threw. This is literally impossible.");
+            case null -> throw new NullPointerException("I legit don't know how this threw. This is literally impossible. That is if this was executed without the IDE's @NotNull thing wasn't active.");
         }
 
-        float newQuad[] = { // One new quad :)
-             //  x,  y,  z,    u,    v, nx, ny, nz
-                x1, y1, z1, minU, minV, nX, nY, nZ,
-                x2, y2, z2, minU, maxV, nX, nY, nZ,
-                x3, y3, z3, maxU, maxV, nX, nY, nZ,
-                x4, y4, z4, maxU, minV, nX, nY, nZ // Need to put 32 elements into an array without creating a new object.
-        };
+//        float newQuad[] = { // One new quad :)
+//             //  x,  y,  z,    u,    v, nx, ny, nz
+//                x1, y1, z1, minU, minV, nX, nY, nZ,
+//                x2, y2, z2, minU, maxV, nX, nY, nZ,
+//                x3, y3, z3, maxU, maxV, nX, nY, nZ,
+//                x4, y4, z4, maxU, minV, nX, nY, nZ // Need to put 32 elements into an array without creating a new object.
+//        };
 
         // Never speak of this again
         buffer[bufferPosition] = x1;

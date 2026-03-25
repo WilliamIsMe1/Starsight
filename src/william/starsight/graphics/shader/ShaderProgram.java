@@ -38,9 +38,9 @@ public class ShaderProgram implements AutoCloseable {
 	 * @throws ShaderCompilationException If the shader cannot compile
 	 * @throws ShaderLinkingException If the shader cannot link
 	 *
-	 * @apiNote The shader will wait to compile both shaders before throwing errors so one error does not mask the other. Obviously it cannot link if there are uncompiled shaders, so no ShaderLinkingException can be thrown
-	 *
-	 * @apiNote DO NOT RUN BEFORE {@link GL#createCapabilities()} OR THIS WILL CRASH
+	 * @apiNote The shader will wait to compile both shaders before throwing errors so one error does not mask the other. Obviously it cannot link if there are uncompiled shaders, so no {@link ShaderLinkingException} can be thrown if there is a {@link ShaderCompilationException} to be thrown
+	 *  <p>
+     *  DO NOT RUN BEFORE {@link GL#createCapabilities()} OR THIS WILL CRASH
 	 */
 	public void compileAndLink() throws ShaderCompilationException, ShaderLinkingException {
 		if (!GraphicsUtils.isGLInitialized()) {
