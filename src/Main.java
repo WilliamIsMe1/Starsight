@@ -146,7 +146,6 @@ public class Main implements Program {
             parent.captureMouse();
         }
         lastFocused = focused;
-        Starsight.LOG.info(String.format("%f seconds have passed. Position: %s", delta, camera.getPosition().toString()));
     }
 
     @Override
