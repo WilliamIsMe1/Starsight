@@ -7,6 +7,8 @@ import william.starsight.graphics.mesh.Tesselator;
 import william.starsight.graphics.shader.ShaderCompilationException;
 import william.starsight.graphics.shader.ShaderLinkingException;
 import william.starsight.graphics.shader.ShaderProgram;
+import william.starsight.graphics.texture.SimpleTexture;
+import william.starsight.graphics.texture.Texture;
 import william.starsight.util.Camera;
 import william.starsight.util.KeyboardKey;
 
@@ -29,9 +31,11 @@ public class Main implements Program {
 
     double currentTime = 0.0;
 
-    Tesselator tess = Tesselator.INSTANCE;
+    Tesselator tess = new Tesselator();
 
     Mesh cubes = null;
+
+    Texture tex = new SimpleTexture();
 
     final Camera camera = new Camera(new Vector3f(0,0,-3), 0, 0);
 

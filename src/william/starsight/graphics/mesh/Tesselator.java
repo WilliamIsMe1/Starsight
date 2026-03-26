@@ -36,14 +36,16 @@ public class Tesselator {
         }
     }
 
-    public static final Tesselator INSTANCE = new Tesselator((int) (32 * 32 * 32 * 24 * 1.25)); // Starting capacity of 983040 floats
-
     private float[] buffer;
     private int bufferPosition;
     private Orientation orientation = Orientation.CCW;
     private int quadCount;
 
-    private Tesselator(int startingCapacity) {
+    public Tesselator() {
+        this((int) (32 * 32 * 32 * 24 * 1.25)); // Default capacity
+    }
+
+    public Tesselator(int startingCapacity) {
         buffer = new float[startingCapacity];
         bufferPosition = 0;
         quadCount = 0;

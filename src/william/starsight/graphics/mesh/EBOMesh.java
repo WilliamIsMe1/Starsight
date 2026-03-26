@@ -1,7 +1,6 @@
 package william.starsight.graphics.mesh;
 
 import org.jetbrains.annotations.NotNull;
-import william.starsight.graphics.GraphicsUtils;
 
 import static org.lwjgl.opengl.GL43.*;
 
