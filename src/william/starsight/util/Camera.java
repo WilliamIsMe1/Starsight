@@ -11,8 +11,7 @@ import william.coreutils.MathUtils;
  *
  * @author William
  */
-public class Camera { // TODO: Fix this and then hook it up to the mouse on the test program
-                      // Problem: I don't really know how it is broken and so obviously i will need to check for more errors
+public class Camera { 
 	/**
 	 * A constant that deals with perspective matrices
 	 */

@@ -1,5 +1,6 @@
+package william.starsight.test;
+
 import org.joml.Vector3f;
-import william.starsight.Starsight;
 import william.starsight.core.Program;
 import william.starsight.core.Window;
 import william.starsight.graphics.mesh.Mesh;
@@ -12,10 +13,12 @@ import william.starsight.graphics.texture.Texture;
 import william.starsight.util.Camera;
 import william.starsight.util.KeyboardKey;
 
+import java.io.FileNotFoundException;
+
 import static org.lwjgl.glfw.GLFW.*;
 
 /**
- * This demo will be that of several cubes in space and us moving around
+ * This demo will be that of a cube in space and us moving around
  */
 @SuppressWarnings("ALL")
 public class Main implements Program {
@@ -35,9 +38,17 @@ public class Main implements Program {
 
     Mesh cubes = null;
 
-    Texture tex = new SimpleTexture();
+    Texture tex;
 
-    final Camera camera = new Camera(new Vector3f(0,0,-3), 0, 0);
+    {
+        try {
+            tex = new SimpleTexture("res/container.jpg");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    final Camera camera = new Camera(new Vector3f(0,0,3), 0, 180);
 
     final boolean testingNormals = false;
 
@@ -84,10 +95,12 @@ public class Main implements Program {
             in vec2 fragUV;
             in vec3 fragNormals;
             
+            uniform sampler2D texSampler;
+
             out vec4 outColor;
             
             void main() {
-                outColor = vec4(fragUV, 1.0, 1.0);
+                outColor = texture(texSampler, fragUV); 
             }
             """);
 
@@ -116,6 +129,8 @@ public class Main implements Program {
 
         cubes = tess.flushMesh();
         cubes.initialize(); // Upload to GPU :)
+
+        tex.initialize();
 
         try {
             testShader.compileAndLink();
@@ -157,15 +172,18 @@ public class Main implements Program {
         testShader.bind();
         testShader.setUniform("perspective", Camera.getPerspectiveMatrix(/*(float) Math.toRadians(70.0)*/70, aspect, 0.01f, 10000f)); // Whyy does JOML use degrees?
         testShader.setUniform("view", camera.getViewMatrix());
+        tex.bind();
 
         cubes.render();
 
         testShader.unbind();
+        tex.unbind();
     }
 
     @Override
     public void cleanup() {
         testShader.cleanup();
+        tex.cleanup();
         cubes.cleanup();
     }
 
