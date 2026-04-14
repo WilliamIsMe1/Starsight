@@ -10,24 +10,32 @@ import static org.lwjgl.opengl.GL43.*;
  * @implNote DO NOT USE ANYTHING EXCEPT FOR DIRECT BUFFERS
  */
 public abstract class Texture {
+    protected boolean isBound = false;
 	protected int textureId = 0;
 	
 	public void bind() {
-		if (textureId != 0)
-			glBindTexture(GL_TEXTURE0, textureId);
+        if (isBound)
+            return;
+        if (textureId != 0) {
+            glBindTexture(GL_TEXTURE0, textureId);
+            isBound = true;
+        }
 	}
 
 	public void unbind() {
+        if (!isBound)
+            return;
 		glBindTexture(GL_TEXTURE0, 0);
+        isBound = false;
 	}
 
 	public abstract void initialize();
 
 	public void cleanup() {
-		subclassCleanup();
+		textureSubclassCleanup();
 		if (textureId != 0)
 			glDeleteTextures(textureId);
 	}
 
-	protected abstract void subclassCleanup();
+	protected abstract void textureSubclassCleanup();
 }

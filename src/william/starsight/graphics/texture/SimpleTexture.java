@@ -2,17 +2,24 @@ package william.starsight.graphics.texture;
 
 import org.lwjgl.stb.STBImage;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.nio.ByteBuffer;
+
 import static org.lwjgl.opengl.GL43.*;
 
-public class SimpleTexture extends Texture {
-    private String sourcePath;
+public final class SimpleTexture extends Texture {
+    ByteBuffer imageData;
+    private final String sourcePath;
 
-    public SimpleTexture(String path) {
+    public SimpleTexture(String path) throws FileNotFoundException {
         this.sourcePath = path;
+        File verification = new File(path);
+        if (!verification.exists()) throw new FileNotFoundException("This file does not exist.");
     }
 
     @Override
-    public void initialize() {
+    public void initialize() { // Broken for some stupid unknown reason.
         textureId = glGenTextures();
         glBindTexture(GL_TEXTURE_2D, textureId);
 
@@ -22,16 +29,16 @@ public class SimpleTexture extends Texture {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         int[] width = new int[1], height = new int[1], nrChannels = new int[1];
-        var imageData = STBImage.stbi_load(sourcePath, width, height, nrChannels, 0);
+        imageData = STBImage.stbi_load(sourcePath, width, height, nrChannels, 0);
+
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width[0], height[0], 0, GL_RGB, GL_UNSIGNED_BYTE, imageData);
         glGenerateMipmap(GL_TEXTURE_2D);
-        STBImage.stbi_image_free(imageData);
 
         glBindTexture(GL_TEXTURE_2D, textureId);
     }
 
     @Override
-    protected void subclassCleanup() {
-        // Nothing needed here
+    protected void textureSubclassCleanup() {
+        STBImage.stbi_image_free(imageData);
     }
 }

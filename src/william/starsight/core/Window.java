@@ -2,6 +2,7 @@ package william.starsight.core;
 
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.*;
+import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryUtil;
 import william.starsight.Starsight;
@@ -154,8 +155,9 @@ public class Window implements Runnable {
 		glEnable(GL_DEPTH_TEST);
 		glEnable(GL_CULL_FACE);
 		glFrontFace(GL_CCW);
-		
-		program.initialize(this, width, height, glfwGetTime());
+        STBImage.stbi_set_flip_vertically_on_load(true);
+
+        program.initialize(this, width, height, glfwGetTime());
 	}
 
 	private void closeWindow(long windowId) { // Let's see if this works.
