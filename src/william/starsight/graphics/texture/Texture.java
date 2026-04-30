@@ -17,7 +17,7 @@ public abstract class Texture {
         if (isBound)
             return;
         if (textureId != 0) {
-            glBindTexture(GL_TEXTURE0, textureId);
+            glBindTexture(GL_TEXTURE_2D, textureId);
             isBound = true;
         }
 	}
@@ -25,7 +25,7 @@ public abstract class Texture {
 	public void unbind() {
         if (!isBound)
             return;
-		glBindTexture(GL_TEXTURE0, 0);
+        glBindTexture(GL_TEXTURE_2D, 0);
         isBound = false;
 	}
 

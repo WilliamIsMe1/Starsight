@@ -13,9 +13,13 @@ import java.util.List;
  */
 public class TextureAtlas {
 
-    QuadTreeNode root;
+    private QuadTreeNode root = new QuadTreeNode();
 
-    HashMap<String, QuadTreeNode> textures = new HashMap<>();
+    {
+        root.sideLength = 8 * 256;
+    }
+
+    public final HashMap<String, QuadTreeNode> textures = new HashMap<>();
 
     public void placeTexture(@NotNull String name, @NotNull BufferedImage contents) {
         if (contents.getWidth() != contents.getHeight()) {
@@ -158,6 +162,6 @@ public class TextureAtlas {
 
         g.dispose();
 
-        return new BufferedImageBasedTexture(img);
+        return new BufferedImageBasedTexture(img, true);
     }
 }

@@ -8,12 +8,13 @@ import william.starsight.graphics.mesh.Tesselator;
 import william.starsight.graphics.shader.ShaderCompilationException;
 import william.starsight.graphics.shader.ShaderLinkingException;
 import william.starsight.graphics.shader.ShaderProgram;
-import william.starsight.graphics.texture.SimpleTexture;
+import william.starsight.graphics.texture.BufferedImageBasedTexture;
 import william.starsight.graphics.texture.Texture;
 import william.starsight.util.Camera;
 import william.starsight.util.KeyboardKey;
 
-import java.io.FileNotFoundException;
+import javax.imageio.ImageIO;
+import java.io.IOException;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -42,8 +43,8 @@ public class Main implements Program {
 
     {
         try {
-            tex = new SimpleTexture("res/container.jpg");
-        } catch (FileNotFoundException e) {
+            tex = new BufferedImageBasedTexture(ImageIO.read(getClass().getResourceAsStream("/container.jpg")), false);
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
@@ -96,7 +97,7 @@ public class Main implements Program {
             in vec3 fragNormals;
             
             uniform sampler2D texSampler;
-
+            
             out vec4 outColor;
             
             void main() {
@@ -169,10 +170,10 @@ public class Main implements Program {
 
     @Override
     public void render(double newTime) {
+        tex.bind();
         testShader.bind();
         testShader.setUniform("perspective", Camera.getPerspectiveMatrix(/*(float) Math.toRadians(70.0)*/70, aspect, 0.01f, 10000f)); // Whyy does JOML use degrees?
         testShader.setUniform("view", camera.getViewMatrix());
-        tex.bind();
 
         cubes.render();
 
