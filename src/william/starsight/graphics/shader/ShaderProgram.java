@@ -6,7 +6,7 @@ import org.joml.Matrix4f;
 import william.starsight.Starsight;
 
 import org.lwjgl.opengl.GL;
-import william.starsight.graphics.GraphicsUtils;
+import william.starsight.util.GraphicsUtils;
 
 import static org.lwjgl.opengl.GL43.*;
 

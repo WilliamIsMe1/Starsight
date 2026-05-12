@@ -10,13 +10,22 @@ import java.util.List;
 
 /**
  * A quad-tree based texture atlas
+ *
+ * @author William
  */
 public class TextureAtlas {
 
-    private QuadTreeNode root = new QuadTreeNode();
+    private final QuadTreeNode root = new QuadTreeNode();
 
-    {
+    public TextureAtlas() {
         root.sideLength = 8 * 256;
+    }
+
+    public TextureAtlas(int sideLength) {
+        if (!((sideLength != 0) && ((sideLength & (sideLength - 1)) == 0))) { // If side length is not a power of 2
+            throw new IllegalArgumentException("Side length must be a power of 2!");
+        }
+        root.sideLength = sideLength;
     }
 
     public final HashMap<String, QuadTreeNode> textures = new HashMap<>();
@@ -50,15 +59,17 @@ public class TextureAtlas {
             node.subNode3 = new QuadTreeNode();
             node.subNode4 = new QuadTreeNode();
 
-            node.subNode1.sideLength = node.sideLength / 2; // Set side lengths
-            node.subNode2.sideLength = node.sideLength / 2;
-            node.subNode3.sideLength = node.sideLength / 2;
-            node.subNode4.sideLength = node.sideLength / 2;
+            int halfLength = node.sideLength / 2;
 
-            node.subNode2.leftX += node.subNode1.sideLength; // Set origin
-            node.subNode3.leftX += node.subNode1.sideLength;
-            node.subNode3.topY += node.subNode1.sideLength;
-            node.subNode4.topY += node.subNode1.sideLength;
+            node.subNode1.sideLength = halfLength; // Set side lengths
+            node.subNode2.sideLength = halfLength;
+            node.subNode3.sideLength = halfLength;
+            node.subNode4.sideLength = halfLength;
+
+            node.subNode2.leftX += halfLength; // Set origin
+            node.subNode3.leftX += halfLength;
+            node.subNode3.topY += halfLength;
+            node.subNode4.topY += halfLength;
 
             node = node.subNode1;
         }
@@ -70,7 +81,8 @@ public class TextureAtlas {
     }
 
     /*
-    I'm preserving this because this was my first attempt at this
+    I'm preserving this because this was my first attempt at this, and I'm feeling nostalgic
+
     /// Search for smallest node in the thing that is still big enough to fit target
     private QuadTreeNode searchForSmallestSpace(QuadTreeNode node, int target) { // NOTE: This may be too complex. I may just be able to find all leaf nodes and get smallest. This one is bugprone.
         if (node.contents != null) { // If already filled

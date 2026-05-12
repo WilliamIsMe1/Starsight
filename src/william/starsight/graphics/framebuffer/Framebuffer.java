@@ -1,7 +1,7 @@
 package william.starsight.graphics.framebuffer;
 
 import william.starsight.Starsight;
-import william.starsight.graphics.GraphicsUtils;
+import william.starsight.util.GraphicsUtils;
 import william.starsight.graphics.texture.Texture;
 
 import java.awt.*;
@@ -90,7 +90,11 @@ public class Framebuffer {
     public void cleanup() {
         tex.cleanup();
         glDeleteFramebuffers(FBO);
-        FBO = 0; // One is meant to be able to delete and resize the Framebuffer at will. this will be kinda glitchy
+        FBO = 0;
+    }
+
+    public static void renderScreenQuad() {
+        glDrawArrays(GL_TRIANGLES, 0, 6);
     }
 
     private static class FramebufferTexture extends Texture {

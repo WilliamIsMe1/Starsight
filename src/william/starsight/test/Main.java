@@ -3,6 +3,7 @@ package william.starsight.test;
 import org.joml.Vector3f;
 import william.starsight.core.Program;
 import william.starsight.core.Window;
+import william.starsight.graphics.framebuffer.Framebuffer;
 import william.starsight.graphics.mesh.Mesh;
 import william.starsight.graphics.mesh.Tesselator;
 import william.starsight.graphics.shader.ShaderCompilationException;
@@ -10,6 +11,7 @@ import william.starsight.graphics.shader.ShaderLinkingException;
 import william.starsight.graphics.shader.ShaderProgram;
 import william.starsight.graphics.texture.BufferedImageBasedTexture;
 import william.starsight.graphics.texture.Texture;
+import william.starsight.graphics.texture.TextureAtlas;
 import william.starsight.util.Camera;
 import william.starsight.util.KeyboardKey;
 
@@ -43,7 +45,16 @@ public class Main implements Program {
 
     {
         try {
-            tex = new BufferedImageBasedTexture(ImageIO.read(getClass().getResourceAsStream("/container.jpg")), false);
+            var dirt = ImageIO.read(Main.class.getResourceAsStream("/dirt.png"));
+            var grass_top = ImageIO.read(Main.class.getResourceAsStream("/grass_top.png"));
+            var grass_side = ImageIO.read(Main.class.getResourceAsStream("/grass_side.png"));
+            var stone = ImageIO.read(Main.class.getResourceAsStream("/stone.png"));
+            TextureAtlas texAtlas = new TextureAtlas(16);
+            texAtlas.placeTexture("dirt", dirt);
+            texAtlas.placeTexture("grass_top", grass_top);
+            texAtlas.placeTexture("grass_side", grass_side);
+            texAtlas.placeTexture("stone", stone);
+            tex = texAtlas.flushTexture();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -101,9 +112,44 @@ public class Main implements Program {
             out vec4 outColor;
             
             void main() {
-                outColor = texture(texSampler, fragUV); 
-            }
+                outColor = texture(texSampler, fragUV);
+            //    outColor = vec4(fragUV.x, 1.0, 1.0, 1.0);
+                }
             """);
+
+    ShaderProgram postProcess = new ShaderProgram("""
+    #version 430
+    
+    vec2 positions[6] = vec2[] (
+        vec2(-1.0, -1.0),
+        vec2(1.0, -1.0),
+        vec2(1.0, 1.0),
+        vec2(1.0, 1.0),
+        vec2(-1.0, 1.0),
+        vec2(-1.0, -1.0)
+    );
+    
+    out vec2 fragUV;
+    
+    void main() {
+        gl_Position = vec4(positions[gl_VertexID], 0.5, 1.0);
+        fragUV = positions[gl_VertexID];
+    }
+    """, """
+    #version 430
+    
+    in vec2 fragUV;
+    out vec4 color;
+    
+    uniform sampler2D framebuffer;
+    
+    void main() {
+        color = texture(framebuffer, fragUV);
+    }
+    
+    """);
+
+    int width = 800, height = 600;
 
     double lastX = 0;
     double lastY = 0;
@@ -112,6 +158,8 @@ public class Main implements Program {
     public void initialize(Window parent, int initWidth, int initHeight, double startTime) {
         this.parent = parent;
         this.aspect = (float) initWidth / initHeight;
+        this.width = initWidth;
+        this.height = initHeight;
 
         this.lastX = initWidth / 2;
         this.lastY = initWidth / 2;
@@ -120,13 +168,7 @@ public class Main implements Program {
 
         parent.captureMouse();
 
-        // Create a cube
-        tess.addQuad(0.5f, 0.0f, 0.0f, Tesselator.QuadDirection.POS_X, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-        tess.addQuad(-0.5f, 0.0f, 0.0f, Tesselator.QuadDirection.NEG_X, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-        tess.addQuad(0.0f, 0.5f, 0.0f, Tesselator.QuadDirection.POS_Y, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-        tess.addQuad(0.0f, -0.5f, 0.0f, Tesselator.QuadDirection.NEG_Y, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
         tess.addQuad(0.0f, 0.0f, 0.5f, Tesselator.QuadDirection.POS_Z, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
-        tess.addQuad(0.0f, 0.0f, -0.5f, Tesselator.QuadDirection.NEG_Z, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f);
 
         cubes = tess.flushMesh();
         cubes.initialize(); // Upload to GPU :)
@@ -135,6 +177,7 @@ public class Main implements Program {
 
         try {
             testShader.compileAndLink();
+            postProcess.compileAndLink();
         } catch (ShaderLinkingException e) {
             throw new RuntimeException(e);
         } catch (ShaderCompilationException e) {
@@ -168,17 +211,23 @@ public class Main implements Program {
         lastFocused = focused;
     }
 
+    int oldwidth = width, oldheight = height;
+
     @Override
     public void render(double newTime) {
-        tex.bind();
-        testShader.bind();
-        testShader.setUniform("perspective", Camera.getPerspectiveMatrix(/*(float) Math.toRadians(70.0)*/70, aspect, 0.01f, 10000f)); // Whyy does JOML use degrees?
-        testShader.setUniform("view", camera.getViewMatrix());
 
-        cubes.render();
 
-        testShader.unbind();
-        tex.unbind();
+            tex.bind();
+                testShader.bind();
+                    testShader.setUniform("perspective", Camera.getPerspectiveMatrix(/*(float) Math.toRadians(70.0)*/70, aspect, 0.01f, 10000f)); // Whyy does JOML use degrees?
+                    testShader.setUniform("view", camera.getViewMatrix());
+
+                    cubes.render();
+
+                testShader.unbind();
+            tex.unbind();
+
+
     }
 
     @Override
@@ -193,9 +242,12 @@ public class Main implements Program {
         return hasPressedQ;
     }
 
+
     @Override
     public void resized(int newWidth, int newHeight) {
         this.aspect = (float) newWidth / newHeight;
+        this.width = newWidth;
+        this.height = newHeight;
     }
 
     @Override

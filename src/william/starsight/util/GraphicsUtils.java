@@ -1,4 +1,4 @@
-package william.starsight.graphics;
+package william.starsight.util;
 
 import org.jetbrains.annotations.Contract;
 import org.lwjgl.opengl.GL;
@@ -37,7 +37,7 @@ public final class GraphicsUtils {
 	}
 	
 	/**
-	 * Checks for an OpenGL error
+	 * Checks for an OpenGL error and then repeats doing so.
 	 *
 	 * @param location The location at which the error occurs
 	 */
@@ -48,4 +48,32 @@ public final class GraphicsUtils {
 			err = glGetError();
 		}
 	}
+
+    private static boolean doesDepthTesting = false;
+    private static CullFaceMode cullFaceMode = CullFaceMode.CCW;
+
+    /**
+     * Sets depth testing
+     */
+    public static void setDepthTest(boolean depthTest) {
+        doesDepthTesting = depthTest;
+        if (depthTest) {
+            glEnable(GL_DEPTH_TEST);
+        } else {
+            glDisable(GL_DEPTH_TEST);
+        }
+    }
+
+    /**
+     * Gets the status of the depth test feature
+     */
+    public static boolean getDepthTest() {
+        return doesDepthTesting;
+    }
+
+    public enum CullFaceMode {
+        NO_CULL,
+        CCW,
+        CW
+    }
 }

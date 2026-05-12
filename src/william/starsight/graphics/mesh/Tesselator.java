@@ -8,7 +8,7 @@ import java.util.Arrays;
 import static org.lwjgl.opengl.GL43.*;
 
 /**
- * This specifically assumes a vertex format of POS, UV, NORMALS, and is not meant to be used for entity models. MovingObjectTesselator should cover that
+ * This specifically assumes a vertex format of POS, UV, NORMALS, and is not meant to be used for entity models. A different Tesselator class should cover that
  */
 public class Tesselator {
     private static final int[] premadeIndices = new int[4194304]; // Filling up the premade indices. I need to document my choice of numbers
@@ -20,13 +20,13 @@ public class Tesselator {
         int four = 2;
         int five = 3;
         int six = 0;
-        for (int i = 0; i < premadeIndices.length - 6; i += 6) {
-            premadeIndices[i] = one;
-            premadeIndices[i + 1] = two;
-            premadeIndices[i + 2] = three;
-            premadeIndices[i + 3] = four;
-            premadeIndices[i + 4] = five;
-            premadeIndices[i + 5] = six;
+        for (int i = 0; i < premadeIndices.length - 6;) { // The incrementation logic is better inside the loop code. I love side effects when they can be used properly!
+            premadeIndices[i++] = one; // Readability :D
+            premadeIndices[i++] = two;
+            premadeIndices[i++] = three;
+            premadeIndices[i++] = four;
+            premadeIndices[i++] = five;
+            premadeIndices[i++] /* I learned this secret technique from poorly written C code :D */ = six;
             one += 4;
             two += 4;
             three += 4;
@@ -36,9 +36,8 @@ public class Tesselator {
         }
     }
 
-    private float[] buffer;
+    private final float[] buffer;
     private int bufferPosition;
-    private Orientation orientation = Orientation.CCW;
     private int quadCount;
 
     public Tesselator() {
@@ -51,8 +50,7 @@ public class Tesselator {
         quadCount = 0;
     }
 
-    public void setOrientation(Orientation o) {
-        this.orientation = o;
+    public void setOrientation(Orientation o) { // TODO Is this needed at all? Does this even belong in this class?? what was past self thinking!? FRONT FACE IS A GLOBAL STATE AND THE Tesselator CAN'T TOUCH IT.
         glFrontFace(o == Orientation.CW ? GL_CW : GL_CCW);
     }
 
@@ -61,6 +59,7 @@ public class Tesselator {
         CCW
     }
 
+    @SuppressWarnings("UnnecessaryBreak") // IntelliJ, buddy, you are wrong here.
     public void addQuad(float x, float y, float z, @NotNull QuadDirection direction, float width, float height, float minU, float minV, float maxU, float maxV) {
         float nX = direction.x();
         float nY = direction.y();
@@ -163,7 +162,7 @@ public class Tesselator {
                 z4 = z;
                 break;
             }
-            case null -> throw new NullPointerException("I legit don't know how this threw. This is literally impossible. That is if this was executed without the IDE's @NotNull thing wasn't active.");
+            case null -> throw new NullPointerException(":| Please don't.");
         }
 
 //        float newQuad[] = { // One new quad :)
@@ -175,41 +174,40 @@ public class Tesselator {
 //        };
 
         // Never speak of this again
-        buffer[bufferPosition] = x1;
-        buffer[bufferPosition + 1] = y1;
-        buffer[bufferPosition + 2] = z1;
-        buffer[bufferPosition + 3] = minU;
-        buffer[bufferPosition + 4] = minV;
-        buffer[bufferPosition + 5] = nX;
-        buffer[bufferPosition + 6] = nY;
-        buffer[bufferPosition + 7] = nZ;
-        buffer[bufferPosition + 8] = x2;
-        buffer[bufferPosition + 9] = y2;
-        buffer[bufferPosition + 10] = z2;
-        buffer[bufferPosition + 11] = minU;
-        buffer[bufferPosition + 12] = maxV;
-        buffer[bufferPosition + 13] = nX;
-        buffer[bufferPosition + 14] = nY;
-        buffer[bufferPosition + 15] = nZ;
-        buffer[bufferPosition + 16] = x3;
-        buffer[bufferPosition + 17] = y3;
-        buffer[bufferPosition + 18] = z3;
-        buffer[bufferPosition + 19] = maxU;
-        buffer[bufferPosition + 20] = maxV;
-        buffer[bufferPosition + 21] = nX;
-        buffer[bufferPosition + 22] = nY;
-        buffer[bufferPosition + 23] = nZ;
-        buffer[bufferPosition + 24] = x4;
-        buffer[bufferPosition + 25] = y4;
-        buffer[bufferPosition + 26] = z4;
-        buffer[bufferPosition + 27] = maxU;
-        buffer[bufferPosition + 28] = minV;
-        buffer[bufferPosition + 29] = nX;
-        buffer[bufferPosition + 30] = nY;
-        buffer[bufferPosition + 31] = nZ;
+        buffer[bufferPosition++] = x1;
+        buffer[bufferPosition++] = y1;
+        buffer[bufferPosition++] = z1;
+        buffer[bufferPosition++] = minU;
+        buffer[bufferPosition++] = minV;
+        buffer[bufferPosition++] = nX;
+        buffer[bufferPosition++] = nY;
+        buffer[bufferPosition++] = nZ;
+        buffer[bufferPosition++] = x2;
+        buffer[bufferPosition++] = y2;
+        buffer[bufferPosition++] = z2;
+        buffer[bufferPosition++] = maxU;
+        buffer[bufferPosition++] = minV;
+        buffer[bufferPosition++] = nX;
+        buffer[bufferPosition++] = nY;
+        buffer[bufferPosition++] = nZ;
+        buffer[bufferPosition++] = x3;
+        buffer[bufferPosition++] = y3;
+        buffer[bufferPosition++] = z3;
+        buffer[bufferPosition++] = maxU;
+        buffer[bufferPosition++] = maxV;
+        buffer[bufferPosition++] = nX;
+        buffer[bufferPosition++] = nY;
+        buffer[bufferPosition++] = nZ;
+        buffer[bufferPosition++] = x4;
+        buffer[bufferPosition++] = y4;
+        buffer[bufferPosition++] = z4;
+        buffer[bufferPosition++] = minU;
+        buffer[bufferPosition++] = maxV;
+        buffer[bufferPosition++] = nX;
+        buffer[bufferPosition++] = nY;
+        buffer[bufferPosition++] = nZ;
 
         quadCount++;
-        bufferPosition += 32; // Issue #1: FIXED
     }
 
     public enum QuadDirection {

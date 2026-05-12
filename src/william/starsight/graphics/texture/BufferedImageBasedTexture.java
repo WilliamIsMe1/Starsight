@@ -1,6 +1,5 @@
 package william.starsight.graphics.texture;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.system.MemoryUtil;
 
 import java.awt.image.BufferedImage;
@@ -22,7 +21,7 @@ public class BufferedImageBasedTexture extends Texture {
         this.height = height;
 
 
-        for (int y = 0; y < width; y++) {
+        for (int y = width - 1; y >= 0; y--) {
             for (int x = 0; x < height; x++) {
                 int pixel = img.getRGB(x, y);
                 byte alpha = (byte) ((pixel >> 24) & 0xFF);
@@ -45,11 +44,13 @@ public class BufferedImageBasedTexture extends Texture {
 
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, imgData);
         glGenerateMipmap(GL_TEXTURE_2D);
+
+        glTexImage2DMultisample(GL_TEXTURE_2D_MULTISAMPLE, 1, GL_RGB, width, height, true);
 
         glBindTexture(GL_TEXTURE_2D, 0);
     }

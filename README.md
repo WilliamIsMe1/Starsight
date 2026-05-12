@@ -21,24 +21,23 @@ The Window class can be set up in a separate thread. Note that this engine is fa
 - [x] Input processing and callbacks
 - [x] Tesselator
 ### 1.1.0a
-- [x] Framebuffer creation and presentation
-    - [ ] Test it
 - [x] BufferedImage based texture class
     - [X] Fix it
 - [x] Texture Atlasing
-    - [ ] Test it
+    - [X] Test it
 ### 1.2.0a
 - [ ] Shader preprocessors
 - [ ] Buffer based mesh loading
-- [ ] Quad culling techniques
+- [ ] Quad culling techniques (Perhaps...)
 - [ ] Lightmaps
 - [ ] Multiple types of tesselators
+- [ ] Framebuffer creation and presentation (Postponed for being unneeded right now)
 ### 1.3.0a
 - [ ] Extensive logging
 - [ ] Integrate profiler from CoreUtils (To be built in CoreUtils)
 - [ ] Animated textures
 ### 1.4.0a
-- [ ] Transparency
+- [.] Translucency (Apparently the fix is stupid simple... sorta...)
 - [ ] Text rendering
 ### 2.0a
 - [ ] UI system

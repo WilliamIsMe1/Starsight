@@ -6,7 +6,7 @@ import org.lwjgl.stb.STBImage;
 import org.lwjgl.system.Callback;
 import org.lwjgl.system.MemoryUtil;
 import william.starsight.Starsight;
-import william.starsight.graphics.GraphicsUtils;
+import william.starsight.util.GraphicsUtils;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL43.*;
@@ -135,6 +135,8 @@ public class Window implements Runnable {
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+        glfwWindowHint(GLFW_SAMPLES, 1);
 		
 		windowHandle = glfwCreateWindow(width, height, title, NULL, NULL);
 		
@@ -152,8 +154,9 @@ public class Window implements Runnable {
 		glViewport(0, 0, width, height);
 		glfwSwapInterval(0);
 		
-		glEnable(GL_DEPTH_TEST);
+		GraphicsUtils.setDepthTest(true);
 		glEnable(GL_CULL_FACE);
+        glDisable(GL_MULTISAMPLE);
 		glFrontFace(GL_CCW);
         STBImage.stbi_set_flip_vertically_on_load(true);
 
